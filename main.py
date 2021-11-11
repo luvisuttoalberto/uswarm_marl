@@ -102,7 +102,7 @@ for i in range(n_agents):
 
 AF.reset_position_and_velocities_in_line()
 
-output_directory = './data_pipe_neigh_rand_sampled/%d_agents' % n_agents
+output_directory = './data/pipe_neigh_rand_sampled/%d_agents' % n_agents
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
 AF.complete_simulation(50, output_directory)
