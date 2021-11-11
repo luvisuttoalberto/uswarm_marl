@@ -76,6 +76,8 @@ class Agent_no_neigh:
 
         self.orientation_of_pipe = 0
 
+        self.timeout_info_pipe = 0
+
     def update_fov_parameters(self):
         """
         Updates the field of view related parameters based on the value of Beta.
@@ -147,6 +149,16 @@ class Agent_no_neigh:
         """
         self.old_s = self.s
         self.s = state
+
+    def update_info_position_of_pipe(self, is_agent_seeing_the_pipe):
+        self.flag_is_agent_seeing_the_pipe = is_agent_seeing_the_pipe
+        if self.flag_is_agent_seeing_the_pipe:
+            self.timeout_info_pipe = 0
+            self.flag_agent_knows_info_on_position_of_pipe = True
+        else:
+            self.timeout_info_pipe += 1
+            if self.timeout_info_pipe > 10:
+                self.flag_agent_knows_info_on_position_of_pipe = False
 
     def obtain_action_index_greedy_policy(self, exploration_rate):
         """

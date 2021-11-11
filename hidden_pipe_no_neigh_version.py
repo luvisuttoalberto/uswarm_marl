@@ -145,9 +145,10 @@ class HiddenPipeEnvironmentNoNeigh:
 
         self.done = False
 
-        self.boolean_array_visibility = np.empty(int(1 / (1 - self.gamma)))
+        # self.boolean_array_visibility = np.empty(int(1 / (1 - self.gamma)))
 
-        self.boolean_array_visited_pipes = np.empty(int(1 / 1 - self.gamma))
+        # self.boolean_array_visited_pipes = np.empty(int(1 / 1 - self.gamma))
+        self.average_highest_reward = np.zeros(self.n_episodes)
 
         self.output_directory = '.'
 
@@ -218,8 +219,7 @@ class HiddenPipeEnvironmentNoNeigh:
 
     def is_agent_seeing_the_pipe(self, index):
         agent = self.agents_list[index]
-        if -self.R < agent.oriented_distance_from_pipe < self.R \
-                and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility, 5):
+        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=.5, n=1):
             return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
                 agent.p + agent.vector_start_fov) <= 0 \
                    or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
@@ -234,8 +234,7 @@ class HiddenPipeEnvironmentNoNeigh:
         # Pipe state computation
         if self.agents_list[index].flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             state_reward_region = 1
-        elif self.agents_list[index].flag_agent_knows_info_on_position_of_pipe and is_scalar_in_visible_interval(
-                self.agents_list[index].p[0], self.boolean_array_visibility, 5):
+        elif self.agents_list[index].flag_agent_knows_info_on_position_of_pipe:
             if self.agents_list[index].oriented_distance_from_pipe > 0:
                 state_reward_region = 0
             else:
@@ -310,12 +309,7 @@ class HiddenPipeEnvironmentNoNeigh:
             self.agents_list[i].update_position_noisy(self.mean_position_noise, self.std_dev_position_noise)
             self.agents_list[i].oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(
                 self.agents_list[i].p)
-            self.agents_list[i].flag_is_agent_seeing_the_pipe = self.is_agent_seeing_the_pipe(i)
-            if self.agents_list[i].flag_is_agent_seeing_the_pipe:
-                self.agents_list[i].flag_agent_knows_info_on_position_of_pipe = True
-                index_section = floor(self.agents_list[i].p[0] / 5)
-                if not self.boolean_array_visited_pipes[index_section]:
-                    self.boolean_array_visited_pipes[index_section] = 1
+            self.agents_list[i].update_info_position_of_pipe(self.is_agent_seeing_the_pipe(i))
 
         # State update
         for i in range(self.n_agents):
@@ -329,6 +323,7 @@ class HiddenPipeEnvironmentNoNeigh:
                                                           self.exploration_rate_vector[current_episode],
                                                           t == self.number_of_steps_per_episode[current_episode] - 1)
             # self.epochs_rewards[i][current_episode] += reward
+        self.average_highest_reward[current_episode] += np.max([self.agents_list[i].r for i in range(self.n_agents)])/self.number_of_steps_per_episode[current_episode]
 
     def reset_position_and_velocities_in_area(self):
         """
@@ -371,10 +366,10 @@ class HiddenPipeEnvironmentNoNeigh:
         Simulates a whole episode.
         """
         self.number_of_steps_per_episode[current_episode] = int(np.random.geometric(1 - self.gamma))
-        number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0 / 5) + 2
-        self.boolean_array_visibility = np.random.binomial(size=max(number_of_intervals, 1), n=1, p=.5)
-        self.boolean_array_visibility[0] = 1
-        self.boolean_array_visited_pipes = np.zeros(max(number_of_intervals, 1))
+        # number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0 / 5) + 2
+        # self.boolean_array_visibility = np.random.binomial(size=max(number_of_intervals, 1), n=1, p=.5)
+        # self.boolean_array_visibility[0] = 1
+        # self.boolean_array_visited_pipes = np.zeros(max(number_of_intervals, 1))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_state(self.obtain_agent_state(i))
@@ -404,8 +399,8 @@ class HiddenPipeEnvironmentNoNeigh:
         self.maximum_distance_towards_objective[current_episode] = 1 - np.min(distance_from_objective) / (
                 self.v0 * self.number_of_steps_per_episode[current_episode])
 
-        self.fraction_of_seen_sections_of_pipe[current_episode] = np.sum(self.boolean_array_visited_pipes) / np.sum(
-            self.boolean_array_visibility)
+        # self.fraction_of_seen_sections_of_pipe[current_episode] = np.sum(self.boolean_array_visited_pipes) / np.sum(
+        #     self.boolean_array_visibility)
 
         if save_trajectory:
             np.savez("%s/episode_%d.npz" % (self.output_directory, current_episode),
@@ -414,7 +409,7 @@ class HiddenPipeEnvironmentNoNeigh:
                      orientation=self.orientation,
                      vector_fov_starts=self.vector_fov_starts,
                      vector_fov_ends=self.vector_fov_ends,
-                     boolean_array_visibility=self.boolean_array_visibility
+                     # boolean_array_visibility=self.boolean_array_visibility
                      )
 
         # Reset positions and velocities of the agents accordingly
@@ -459,7 +454,8 @@ class HiddenPipeEnvironmentNoNeigh:
                  fraction_of_seen_sections_of_pipe=self.fraction_of_seen_sections_of_pipe,
                  Q_matrices=matrices_to_be_saved,
                  Q_visits=frequencies_for_policy_plots,
-                 number_of_steps_per_episode=self.number_of_steps_per_episode
+                 number_of_steps_per_episode=self.number_of_steps_per_episode,
+                 average_highest_reward=self.average_highest_reward
                  )
 
         print("Global time: ", time() - global_start_time)

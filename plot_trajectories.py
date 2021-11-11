@@ -31,7 +31,7 @@ Q_visits = Q_visits/(np.max(Q_visits))
 # Q_visits[Q_visits > 0] += 0.05
 # Q_visits[Q_visits > 0.9] -= 0.05
 
-for i in range(n_agents):
-    plot_policy(K_s, K_s_pipe, arrows_action, Q_matrices[i], Q_visits[i], i)
-
-plot_Q_matrices(K_s_pipe, n_agents, Q_matrices, K_s)
+# for i in range(n_agents):
+#     plot_policy(K_s, K_s_pipe, arrows_action, Q_matrices[i], Q_visits[i], i)
+#
+# plot_Q_matrices(K_s_pipe, n_agents, Q_matrices, K_s)
