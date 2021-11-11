@@ -35,7 +35,7 @@ def plot_maximum_distance(maximum_distance_towards_objective):
     """
         Plots the maximum distance reached towards the objective.
         """
-    fig = plt.figure(figsize=(9, 6))
+    fig = plt.figure(figsize=(15, 9))
     ax1 = fig.add_subplot(1, 1, 1)
     ax1.set_xlabel('episode')
     ax1.set_title('Maximum distance reached on the preferred direction of movement')
@@ -46,6 +46,18 @@ def plot_maximum_distance(maximum_distance_towards_objective):
 
     plt.show()
 
+def plot_average_highest_reward(average_highest_reward):
+
+    fig = plt.figure(figsize=(15, 9))
+    ax1 = fig.add_subplot(1, 1, 1)
+    ax1.set_xlabel('episode')
+    ax1.set_title('Average highest reward')
+
+    ax1.plot(range(average_highest_reward.size), average_highest_reward)
+    plt.grid()
+    plt.ylim(-1, 1)
+
+    plt.show()
 
 # def plot_fraction_visited_pipes(fraction_of_seen_sections_of_pipe):
 #     """

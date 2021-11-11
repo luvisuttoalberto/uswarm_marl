@@ -145,6 +145,7 @@ class HiddenPipeEnvironment:
         self.done = False
 
         # self.boolean_array_visibility = np.empty(int(1 / (1 - self.gamma)))
+        self.average_highest_reward = np.zeros(self.n_episodes)
 
         # self.boolean_array_visited_pipes = np.empty(int(1 / 1 - self.gamma))
 
@@ -363,6 +364,7 @@ class HiddenPipeEnvironment:
                                                           self.exploration_rate_vector[current_episode],
                                                           t == self.number_of_steps_per_episode[current_episode] - 1)
             # self.epochs_rewards[i][current_episode] += reward
+        self.average_highest_reward[current_episode] += np.max([self.agents_list[i].r for i in range(self.n_agents)])/self.number_of_steps_per_episode[current_episode]
 
     def reset_position_and_velocities_in_area(self):
         """
@@ -493,7 +495,8 @@ class HiddenPipeEnvironment:
                  fraction_of_seen_sections_of_pipe=self.fraction_of_seen_sections_of_pipe,
                  Q_matrices=matrices_to_be_saved,
                  Q_visits=frequencies_for_policy_plots,
-                 number_of_steps_per_episode=self.number_of_steps_per_episode
+                 number_of_steps_per_episode=self.number_of_steps_per_episode,
+                 average_highest_reward=self.average_highest_reward
                  )
 
         print("Global time: ", time() - global_start_time)
