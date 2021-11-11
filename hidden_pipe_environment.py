@@ -1,8 +1,6 @@
 import numpy as np
-from auxiliary_functions import \
-    compute_rotation_matrix, learning_rate_adaptive, \
-    exploration_rate_adaptive, is_scalar_in_visible_interval
-from math import sqrt, degrees, pi, floor
+from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive, exploration_rate_adaptive
+from math import sqrt, degrees, pi
 from agent import Agent
 from numpy.linalg import norm as euclidean_norm
 import random
@@ -351,7 +349,6 @@ class HiddenPipeEnvironment:
             #     if self.agents_list[i].timeout_info_pipe > 10:
             #         self.agents_list[i].flag_agent_knows_info_on_position_of_pipe = False
 
-
         # State update
         for i in range(self.n_agents):
             self.agents_list[i].update_state(self.obtain_agent_state(i))
@@ -364,7 +361,8 @@ class HiddenPipeEnvironment:
                                                           self.exploration_rate_vector[current_episode],
                                                           t == self.number_of_steps_per_episode[current_episode] - 1)
             # self.epochs_rewards[i][current_episode] += reward
-        self.average_highest_reward[current_episode] += np.max([self.agents_list[i].r for i in range(self.n_agents)])/self.number_of_steps_per_episode[current_episode]
+        self.average_highest_reward[current_episode] += np.max([self.agents_list[i].r for i in range(self.n_agents)]) \
+                                                        / self.number_of_steps_per_episode[current_episode]
 
     def reset_position_and_velocities_in_area(self):
         """
@@ -474,7 +472,7 @@ class HiddenPipeEnvironment:
             save_trajectory = j % interval_print_data == 0 or j == self.n_episodes - 1
             self.simulate_episode(j, save_trajectory)
             if j % (self.n_episodes / 10) == 0:
-                print(100*(j/self.n_episodes), " %, elapsed time: ", time() - start_time)
+                print(100 * (j / self.n_episodes), " %, elapsed time: ", time() - start_time)
                 start_time = time()
 
         matrices_to_be_saved = np.zeros([self.n_agents, self.K_s, self.K_s, self.K_s_pipe, self.K_a])

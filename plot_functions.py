@@ -46,8 +46,8 @@ def plot_maximum_distance(maximum_distance_towards_objective):
 
     plt.show()
 
-def plot_average_highest_reward(average_highest_reward):
 
+def plot_average_highest_reward(average_highest_reward):
     fig = plt.figure(figsize=(15, 9))
     ax1 = fig.add_subplot(1, 1, 1)
     ax1.set_xlabel('episode')
@@ -58,6 +58,7 @@ def plot_average_highest_reward(average_highest_reward):
     plt.ylim(-1, 1)
 
     plt.show()
+
 
 # def plot_fraction_visited_pipes(fraction_of_seen_sections_of_pipe):
 #     """
@@ -152,6 +153,7 @@ def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
 
         plt.show()
 
+
 def plot_policy_no_neigh(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
     X = np.arange(k_s)
     Y = np.arange(k_s_pipe)
@@ -173,6 +175,7 @@ def plot_policy_no_neigh(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index)
             axes.quiver(X[i], Y[j], U[i, j], V[i, j], color='%f' % (1 - Q_visits[i, j]), pivot='middle')
 
     plt.show()
+
 
 def plot_Q_matrices(k_s_pipe, n_agents, Q, k_s):
     """
@@ -210,7 +213,6 @@ def generate_gifs(title, data, directory):
     plt.xlim([np.min(x_traj[:, 0:end_point_initial]), xlim_r])
     plt.ylim([min(-2, np.min(y_traj[:, 0:end_point_initial])), max(2, np.max(y_traj[:, 0:end_point_initial]))])
     plt.gca().set_aspect('equal', adjustable='box')
-
 
     for i in range(0, end_point_initial):
         # for k in [x for x in range(0, len(boolean_array_visibility)) if x * 5 < xlim_r]:

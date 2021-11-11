@@ -4,7 +4,7 @@ from auxiliary_functions import compute_rotation_matrix
 import random
 
 
-class Agent_no_neigh:
+class AgentNoNeigh:
     """
     Class that defines a single agent.
     """

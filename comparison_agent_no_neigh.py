@@ -31,7 +31,7 @@ ax1 = fig.add_subplot(1, 1, 1)
 ax1.set_xlabel('episode')
 ax1.set_title('Moving average on 30 steps of the fraction of visited visible sections of the pipe')
 
-ax1.plot(range(len(visited_section_neigh_4))[-moving_average_neigh_4.size:], moving_average_neigh_4,'C0', label="4, neigh")
+ax1.plot(range(len(visited_section_neigh_4))[-moving_average_neigh_4.size:], moving_average_neigh_4, 'C0', label="4, neigh")
 ax1.plot(range(len(visited_section_no_neigh_4))[-moving_average_no_neigh_4.size:], moving_average_no_neigh_4, 'C0--',
          label="4, no neigh")
 
