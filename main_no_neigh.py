@@ -8,7 +8,7 @@ import hidden_pipe_no_neigh_version
 filterwarnings("ignore", category=RuntimeWarning)
 
 # Number of agents
-n_agents = 4
+n_agents = 8
 
 # Maximum turning angle of the agent per timestep
 theta_max = 3 * pi / 16
@@ -17,7 +17,7 @@ theta_max = 3 * pi / 16
 v0 = 0.3
 
 # Radius of the agent's area of vision; used to determine the agent's neighbours
-R = 1.5
+R = 4
 
 # Number of possible "neighbours" states (32 + the "no neighbours" state)
 k_s = 33
@@ -103,7 +103,7 @@ for i in range(n_agents):
 
 AF.reset_position_and_velocities_in_line()
 
-output_directory = './data/pipe_no_neigh_rand_sampled/%d_agents' % n_agents
+output_directory = './data/pipe_no_neigh_rand_sampled_R_4/%d_agents' % n_agents
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
 AF.complete_simulation(50, output_directory)

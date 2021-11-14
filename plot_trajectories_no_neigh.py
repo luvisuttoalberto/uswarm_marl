@@ -8,7 +8,7 @@ np.set_printoptions(threshold=np.inf)
 
 n_agents = 4
 
-data_for_plots = np.load("./data/pipe_no_neigh_rand_sampled/%d_agents/data_for_plots.npz" % n_agents)
+data_for_plots = np.load("./data/pipe_no_neigh_rand_sampled_R_4/%d_agents/data_for_plots.npz" % n_agents)
 
 plot_maximum_distance(data_for_plots["maximum_distance_towards_objective"])
 # plot_fraction_visited_pipes(data_for_plots["fraction_of_seen_sections_of_pipe"])

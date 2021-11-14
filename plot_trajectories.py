@@ -5,9 +5,9 @@ from math import pi
 
 np.set_printoptions(threshold=np.inf)
 
-n_agents = 4
+n_agents = 8
 
-data_for_plots = np.load("./data/pipe_neigh_rand_sampled/%d_agents/data_for_plots.npz" % n_agents)
+data_for_plots = np.load("./data/pipe_neigh_rand_sampled_R_4/%d_agents/data_for_plots.npz" % n_agents)
 
 plot_maximum_distance(data_for_plots["maximum_distance_towards_objective"])
 plot_average_highest_reward(data_for_plots["average_highest_reward"])
@@ -28,10 +28,10 @@ Q_matrices = data_for_plots["Q_matrices"]
 Q_visits = data_for_plots["Q_visits"]
 
 Q_visits = Q_visits/(np.max(Q_visits))
-# Q_visits[Q_visits > 0] += 0.05
-# Q_visits[Q_visits > 0.9] -= 0.05
+Q_visits[Q_visits > 0] += 0.05
+Q_visits[Q_visits > 0.95] -= 0.05
 
-# for i in range(n_agents):
-#     plot_policy(K_s, K_s_pipe, arrows_action, Q_matrices[i], Q_visits[i], i)
+for i in range(1):
+    plot_policy(K_s, K_s_pipe, arrows_action, Q_matrices[i], Q_visits[i], i)
 #
 # plot_Q_matrices(K_s_pipe, n_agents, Q_matrices, K_s)
