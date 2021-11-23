@@ -2,7 +2,7 @@ import numpy as np
 
 from agent_no_neigh import AgentNoNeigh
 from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive, exploration_rate_adaptive
-from math import sqrt, degrees, pi
+from math import sqrt, degrees, pi, floor
 from numpy.linalg import norm as euclidean_norm
 import random
 from time import time
@@ -33,7 +33,8 @@ class HiddenPipeEnvironmentNoNeigh:
                  std_dev_velocity_noise,
                  std_dev_position_noise,
                  reset_type,
-                 gamma):
+                 gamma,
+                 pipe_recognition_probability):
         """
         Constructor of the class.
         """
@@ -145,10 +146,11 @@ class HiddenPipeEnvironmentNoNeigh:
 
         # self.boolean_array_visibility = np.empty(int(1 / (1 - self.gamma)))
 
-        # self.boolean_array_visited_pipes = np.empty(int(1 / 1 - self.gamma))
+        self.boolean_array_visited_pipes = np.empty(int(1 / 1 - self.gamma))
         self.average_highest_reward = np.zeros(self.n_episodes)
 
         self.output_directory = '.'
+        self.pipe_recognition_probability = pipe_recognition_probability
 
     def add_agent(self, x, y, v):
         """
@@ -217,7 +219,7 @@ class HiddenPipeEnvironmentNoNeigh:
 
     def is_agent_seeing_the_pipe(self, index):
         agent = self.agents_list[index]
-        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=.5, n=1):
+        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1):
             return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
                 agent.p + agent.vector_start_fov) <= 0 \
                    or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
@@ -308,6 +310,8 @@ class HiddenPipeEnvironmentNoNeigh:
             self.agents_list[i].oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(
                 self.agents_list[i].p)
             self.agents_list[i].update_info_position_of_pipe(self.is_agent_seeing_the_pipe(i))
+            if self.agents_list[i].flag_is_agent_seeing_the_pipe:
+                self.boolean_array_visited_pipes[floor(self.agents_list[i].p[0])] = 1
 
         # State update
         for i in range(self.n_agents):
@@ -365,10 +369,10 @@ class HiddenPipeEnvironmentNoNeigh:
         Simulates a whole episode.
         """
         self.number_of_steps_per_episode[current_episode] = int(np.random.geometric(1 - self.gamma))
-        # number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0 / 5) + 2
+        number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2
         # self.boolean_array_visibility = np.random.binomial(size=max(number_of_intervals, 1), n=1, p=.5)
         # self.boolean_array_visibility[0] = 1
-        # self.boolean_array_visited_pipes = np.zeros(max(number_of_intervals, 1))
+        self.boolean_array_visited_pipes = np.zeros(max(number_of_intervals, 1))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_state(self.obtain_agent_state(i))
@@ -398,9 +402,7 @@ class HiddenPipeEnvironmentNoNeigh:
         self.maximum_distance_towards_objective[current_episode] = 1 - np.min(distance_from_objective) / (
                 self.v0 * self.number_of_steps_per_episode[current_episode])
 
-        # self.fraction_of_seen_sections_of_pipe[current_episode] = np.sum(self.boolean_array_visited_pipes) / np.sum(
-        #     self.boolean_array_visibility)
-
+        self.fraction_of_seen_sections_of_pipe[current_episode] = np.sum(self.boolean_array_visited_pipes) / len(self.boolean_array_visited_pipes)
         if save_trajectory:
             np.savez("%s/episode_%d.npz" % (self.output_directory, current_episode),
                      x_traj=self.x_trajectory,
