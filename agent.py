@@ -78,6 +78,12 @@ class Agent:
 
         self.timeout_info_pipe = 0
 
+        self.angle_pipe = 0
+
+        self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
+
+        self.std_dev_measure_pipe = pi/16
+
     def update_fov_parameters(self):
         """
         Updates the field of view related parameters based on the value of Beta.
@@ -150,7 +156,7 @@ class Agent:
         self.old_s = self.s
         self.s = state
 
-    def update_info_position_of_pipe(self, is_agent_seeing_the_pipe):
+    def update_info_on_pipe(self, is_agent_seeing_the_pipe):
         self.flag_is_agent_seeing_the_pipe = is_agent_seeing_the_pipe
         if self.flag_is_agent_seeing_the_pipe:
             self.timeout_info_pipe = 0
@@ -159,6 +165,8 @@ class Agent:
             self.timeout_info_pipe += 1
             if self.timeout_info_pipe > 10:
                 self.flag_agent_knows_info_on_position_of_pipe = False
+        self.angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
+        self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
 
     def obtain_action_index_greedy_policy(self, exploration_rate):
         """

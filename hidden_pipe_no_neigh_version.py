@@ -86,9 +86,9 @@ class HiddenPipeEnvironmentNoNeigh:
         self.offset_pipe = offset_pipe
         self.angle_pipe = np.arctan(self.slope_pipe)
         self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
-        self.perpendicular_angle_pipe = self.angle_pipe + pi / 2
-        self.vector_perpendicular_to_pipe = np.dot(compute_rotation_matrix(self.perpendicular_angle_pipe),
-                                                   np.array([1, 0]))
+        # self.perpendicular_angle_pipe = self.angle_pipe + pi / 2
+        # self.vector_perpendicular_to_pipe = np.dot(compute_rotation_matrix(self.perpendicular_angle_pipe),
+        #                                            np.array([1, 0]))
 
         # Initialization of parameters connected to the gaussian noise on position and velocity
         self.mean_velocity_noise = mean_velocity_noise
@@ -246,12 +246,12 @@ class HiddenPipeEnvironmentNoNeigh:
         # Compute a rotated v of pi/2; needed for computation of the state
         rotated_v = np.dot(compute_rotation_matrix(pi / 2), self.agents_list[index].v)
 
-        if np.dot(self.vector_pipe, rotated_v) > 0:
+        if np.dot(self.agents_list[index].vector_pipe, rotated_v) > 0:
             state_pipe = np.arccos(
-                np.dot(self.vector_pipe, self.agents_list[index].v) / euclidean_norm(self.vector_pipe))
+                np.dot(self.agents_list[index].vector_pipe, self.agents_list[index].v) / euclidean_norm(self.agents_list[index].vector_pipe))
         else:
             state_pipe = -np.arccos(
-                np.dot(self.vector_pipe, self.agents_list[index].v) / euclidean_norm(self.vector_pipe))
+                np.dot(self.agents_list[index].vector_pipe, self.agents_list[index].v) / euclidean_norm(self.agents_list[index].vector_pipe))
 
         state = np.array([state_pipe, state_reward_region])
         return self.discretize_state(state)
@@ -261,7 +261,7 @@ class HiddenPipeEnvironmentNoNeigh:
         Obtains the reward of agent "index"
         """
         if self.agents_list[index].flag_is_agent_seeing_the_pipe:
-            return np.cos(self.agents_list[index].Beta - self.angle_pipe)
+            return np.cos(self.agents_list[index].Beta - self.agents_list[index].angle_pipe)
         else:
             return 0
 
@@ -309,7 +309,7 @@ class HiddenPipeEnvironmentNoNeigh:
             self.agents_list[i].update_position_noisy(self.mean_position_noise, self.std_dev_position_noise)
             self.agents_list[i].oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(
                 self.agents_list[i].p)
-            self.agents_list[i].update_info_position_of_pipe(self.is_agent_seeing_the_pipe(i))
+            self.agents_list[i].update_info_on_pipe(self.is_agent_seeing_the_pipe(i))
             if self.agents_list[i].flag_is_agent_seeing_the_pipe:
                 self.boolean_array_visited_pipes[floor(self.agents_list[i].p[0])] = 1
 
