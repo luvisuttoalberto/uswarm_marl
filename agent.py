@@ -9,7 +9,7 @@ class Agent:
     Class that defines a single agent.
     """
 
-    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma):
+    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor):
         """
         Constructor of the agent.
         x and y are the positional coordinates of the agent.
@@ -64,7 +64,7 @@ class Agent:
 
         # Initialization of the agent's state to default values; will actually be updated before starting the
         # simulation
-        self.s = [0.0, 0.0, 0]
+        self.s = [0.0, 0.0, 1]
         self.old_s = [0.0, 0.0, 0]
 
         #       Store the reward received by the agent. Needed only for plots
@@ -74,6 +74,8 @@ class Agent:
         # of values.
         self.oriented_distance_from_pipe = 0
 
+        self.last_oriented_distance_from_pipe = 0
+
         self.orientation_of_pipe = 0
 
         self.timeout_info_pipe = 0
@@ -82,7 +84,11 @@ class Agent:
 
         self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
 
-        self.std_dev_measure_pipe = pi/16
+        self.std_dev_measure_pipe = std_dev_measure_pipe
+
+        self.forgetting_factor = forgetting_factor
+
+        self.weight_measure = 1.
 
     def update_fov_parameters(self):
         """
@@ -149,6 +155,16 @@ class Agent:
         """
         self.p = self.p + self.v0 * delta_t * self.v + np.random.normal(mean, std_dev, size=2) * delta_t
 
+    def update_relative_position_state(self, state):
+        self.old_s[2] = self.s[2]
+        self.s[2] = state
+
+    def update_orientations_state(self, state):
+        self.old_s[0] = self.s[0]
+        self.old_s[1] = self.s[1]
+        self.s[0] = state[0]
+        self.s[1] = state[1]
+
     def update_state(self, state):
         """
         Updates the agent state.
@@ -156,17 +172,21 @@ class Agent:
         self.old_s = self.s
         self.s = state
 
-    def update_info_on_pipe(self, is_agent_seeing_the_pipe):
+    def update_info_on_pipe(self, is_agent_seeing_the_pipe, first_step):
         self.flag_is_agent_seeing_the_pipe = is_agent_seeing_the_pipe
         if self.flag_is_agent_seeing_the_pipe:
             self.timeout_info_pipe = 0
             self.flag_agent_knows_info_on_position_of_pipe = True
+            self.measure_angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
+            if not first_step:
+                self.weight_measure = self.forgetting_factor * self.weight_measure + 1
+            self.angle_pipe = (1-1/self.weight_measure)*self.angle_pipe + self.measure_angle_pipe/self.weight_measure
+            self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
+            self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
         else:
             self.timeout_info_pipe += 1
             if self.timeout_info_pipe > 10:
                 self.flag_agent_knows_info_on_position_of_pipe = False
-        self.angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
-        self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
 
     def obtain_action_index_greedy_policy(self, exploration_rate):
         """
