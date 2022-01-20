@@ -1,5 +1,5 @@
 import numpy as np
-from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive, exploration_rate_adaptive, is_scalar_in_visible_interval
+from auxiliary_functions import compute_rotation_matrix, exploration_rate_adaptive, is_scalar_in_visible_interval
 from math import sqrt, degrees, pi, floor
 from agent import Agent
 from numpy.linalg import norm as euclidean_norm
@@ -40,7 +40,8 @@ class HiddenPipeEnvironment:
                  prob_end_surge,
                  forgetting_factor,
                  weight_smart_agent,
-                 visibility_pipe):
+                 visibility_pipe,
+                 pipe_recognition_probability):
         """
         Constructor of the class.
         """
@@ -108,10 +109,10 @@ class HiddenPipeEnvironment:
         self.reset_type = reset_type
 
         # Pre-computing the values of the learning and exploration rate for each timestep
-        self.learning_rate_vector = np.empty(self.n_episodes)
+        # self.learning_rate_vector = np.empty(self.n_episodes)
         self.exploration_rate_vector = np.empty(self.n_episodes)
         for i in range(self.n_episodes):
-            self.learning_rate_vector[i] = learning_rate_adaptive(i, self.alpha_0, self.t_star_lr, self.t_stop)
+            # self.learning_rate_vector[i] = learning_rate_adaptive(i, self.alpha_0, self.t_star_lr, self.t_stop)
             self.exploration_rate_vector[i] = exploration_rate_adaptive(i, self.epsilon_0, self.t_star_epsilon, self.t_stop)
 
         # self.maximum_reward = 1/(1-self.gamma)
@@ -175,6 +176,8 @@ class HiddenPipeEnvironment:
 
         self.visibility_pipe = visibility_pipe
 
+        self.pipe_recognition_probability = pipe_recognition_probability
+
     def add_agent(self, x, y, v):
         """
         Adds a new agent to the environment, given its position and velocity; updates related parameters and data
@@ -191,7 +194,9 @@ class HiddenPipeEnvironment:
                           self.R,
                           self.gamma,
                           self.std_dev_measure_pipe,
-                          self.forgetting_factor)
+                          self.forgetting_factor,
+                          self.alpha_0,
+                          self.t_star_lr)
         new_agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(new_agent.p)
         self.agents_list.append(new_agent)
         self.n_agents += 1
@@ -271,7 +276,7 @@ class HiddenPipeEnvironment:
 
     def is_agent_seeing_the_pipe(self, index):
         agent = self.agents_list[index]
-        if -self.R < agent.oriented_distance_from_pipe < self.R and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5, self.flag_spatially_uncorrelated_case):
+        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5, self.flag_spatially_uncorrelated_case):
             return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_start_fov) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_end_fov) <= 0
         else:
             return False
@@ -299,7 +304,7 @@ class HiddenPipeEnvironment:
     def obtain_relative_position_state(self, index):
         # Pipe state computation
         agent = self.agents_list[index]
-        state_relative_position = -1
+        # state_relative_position = -1
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -1 < agent.oriented_distance_from_pipe < 1:
                 state_relative_position = 1
@@ -311,7 +316,7 @@ class HiddenPipeEnvironment:
             state_relative_position = 3
         elif agent.s[2] == 3:
             if np.random.binomial(1, self.prob_end_surge):
-                if agent.oriented_distance_from_pipe > 0:
+                if agent.last_oriented_distance_from_pipe > 0:
                     state_relative_position = 0
                 else:
                     state_relative_position = 2
@@ -326,8 +331,8 @@ class HiddenPipeEnvironment:
                 else:
                     state_relative_position = 0
 
-        if state_relative_position == -1:
-            print("ERRORE: previous s = ", agent.s[2])
+        # if state_relative_position == -1:
+        #     print("ERRORE: previous s = ", agent.s[2])
 
         return state_relative_position
 
@@ -335,6 +340,7 @@ class HiddenPipeEnvironment:
         agent = self.agents_list[index]
         average_velocity = self.compute_average_velocity_weighted(index)
         # average_velocity = self.compute_average_velocity(index)
+
         normalized_average_velocity = euclidean_norm(average_velocity)
 
         # Compute a rotated v of pi/2; needed for computation of the state
@@ -431,9 +437,9 @@ class HiddenPipeEnvironment:
         """
         agent = self.agents_list[index]
         if agent.flag_is_agent_seeing_the_pipe:
-            return np.cos(agent.Beta - agent.angle_pipe)
+            return np.cos(agent.Beta - agent.angle_pipe) - 1
         else:  # agent is not in the reward region
-            return 0
+            return -1
 
     # def obtain_additional_reward_from_neighbors(self, index):
     #     for i in [x for x in range(self.n_agents) if x != index and self.compute_distance(index, x) < self.R and self.agents_list[index].is_point_in_field_of_view(self.agents_list[x].p)]:
@@ -522,8 +528,7 @@ class HiddenPipeEnvironment:
         # Reward computation and Q matrix update
         for i in range(self.n_agents):
             reward = self.obtain_reward_of_agent(i)
-            self.agents_list[i].update_Q_matrix_exp_sarsa(self.learning_rate_vector[current_episode],
-                                                          reward,
+            self.agents_list[i].update_Q_matrix_exp_sarsa(reward,
                                                           self.exploration_rate_vector[current_episode],
                                                           t == self.number_of_steps_per_episode[current_episode] - 1)
             # self.epochs_rewards[i][current_episode] += reward
@@ -582,6 +587,7 @@ class HiddenPipeEnvironment:
             number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2 + floor(2*self.n_agents + 1)
         else:
             number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2
+
         self.boolean_array_visibility = np.zeros((self.n_agents, max(floor(number_of_intervals/5) + 1, 1)))
         tmp_boolean_array_visibility = np.random.binomial(size=max(floor(number_of_intervals/5) + 1, 1), n=1, p=self.visibility_pipe)
         for i in range(self.n_agents):
@@ -666,7 +672,7 @@ class HiddenPipeEnvironment:
         start_time = time()
         for j in range(self.n_episodes):
 
-            save_trajectory = j % interval_print_data == 0 or j == self.n_episodes - 1
+            save_trajectory = j % interval_print_data == 0 or j == self.n_episodes - 1 or j == self.n_episodes - 50 or j == self.n_episodes - 100
             self.simulate_episode(j, save_trajectory)
             if j % (self.n_episodes / 10) == 0:
                 print(100 * (j / self.n_episodes), " %, elapsed time: ", time() - start_time)
@@ -680,6 +686,10 @@ class HiddenPipeEnvironment:
         for i in range(self.n_agents):
             frequencies_for_policy_plots[i] = self.agents_list[i].Q_visits
 
+        global_state_action_rate_visits = np.zeros([self.n_agents, len(self.possible_states), len(self.possible_states), self.K_s_pipe, self.K_a] )
+        for i in range(self.n_agents):
+            global_state_action_rate_visits[i] = self.agents_list[i].state_action_rate_visits
+
         np.savez("%s/data_for_plots.npz" % self.output_directory,
                  K_s=self.K_s,
                  K_s_pipe=self.K_s_pipe,
@@ -691,8 +701,10 @@ class HiddenPipeEnvironment:
                  Q_visits=frequencies_for_policy_plots,
                  number_of_steps_per_episode=self.number_of_steps_per_episode,
                  average_highest_reward=self.average_highest_reward,
-                 average_fraction_pipe=self.average_fraction_pipe
+                 average_fraction_pipe=self.average_fraction_pipe,
+                 global_state_action_rate_visits=global_state_action_rate_visits
                  )
+
         print(self.fraction_of_seen_sections_of_pipe)
 
         print("Global time: ", time() - global_start_time)

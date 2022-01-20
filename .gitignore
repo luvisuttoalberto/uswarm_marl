@@ -1,2 +1,14 @@
 /data/
 __pycache__/
+/data_trace_recovery/
+/data_trace_recovery_fixed/
+/data_swarming_behavior/
+/data_swarming_behavior_6_states/
+/data_trace_6_states/
+/data_trace_recovery_fixed_lost_info/
+/data_trace_recovery_forgetting_average/
+/data_trace_recovery_forgetting_average_benchmark/
+/Presentations/
+/results_multiple_trajectory/
+/data_baseline_new_reward/
+/data_swarming_behavior_new_reward/

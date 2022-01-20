@@ -116,10 +116,10 @@ def plot_average_fraction_visited_pipes(average_fraction_pipe):
 
     plt.show()
 
-def plot_Q_matrix_no_neigh_version(state_reward_index, n_agents, Q, k_s, flag_single_agent):
+def plot_Q_matrix_no_neigh_version(state_reward_index, n_agents, Q, k_s):
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     fig.suptitle("Pipe relative position state: %d" % state_reward_index)
-    if flag_single_agent:
+    if n_agents <= 1:
         axes.set_xlabel("Actions")
         axes.set_ylabel("States")
         image = axes.imshow(Q[0, :, state_reward_index])
@@ -152,18 +152,18 @@ def plot_Q_matrix_pipe(state_neighbours_index, state_reward_index, n_agents, Q, 
             axes[i].set_title("Agent {}".format(i))
             axes[i].set_xlabel("Actions")
             axes[i].set_ylabel("States")
-            image = axes[i].imshow(Q[i, state_neighbours_index, :, state_reward_index])
-            maximums = np.argmax(Q[i, state_neighbours_index, :, state_reward_index], axis=1)
-            for j in range(k_s):
+            image = axes[i].imshow(Q[i, state_neighbours_index, :-1, state_reward_index])
+            maximums = np.argmax(Q[i, state_neighbours_index, :-1, state_reward_index], axis=1)
+            for j in range(k_s-1):
                 axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
             fig.colorbar(image, ax=axes[i])
     else:
         axes.set_title("Agent {}".format(0))
         axes.set_xlabel("Actions")
         axes.set_ylabel("States")
-        image = axes.imshow(Q[0, state_neighbours_index, :, state_reward_index])
-        maximums = np.argmax(Q[0, state_neighbours_index, :, state_reward_index], axis=1)
-        for j in range(k_s):
+        image = axes.imshow(Q[0, state_neighbours_index, :-1, state_reward_index])
+        maximums = np.argmax(Q[0, state_neighbours_index, :-1, state_reward_index], axis=1)
+        for j in range(k_s-1):
             axes.text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
         fig.colorbar(image, ax=axes)
 
@@ -255,6 +255,55 @@ def plot_policy_no_neigh(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index)
 
     plt.show()
 
+def plot_visit_matrices_pipe(state_neighbours_index, state_reward_index, n_agents, V, k_s):
+    fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
+    fig.suptitle("Pipe relative position state: %d; neighbors state: %d" % (state_reward_index, state_neighbours_index))
+    if n_agents > 1:
+        for i in range(n_agents):
+            axes[i].set_title("Agent {}".format(i))
+            axes[i].set_xlabel("Actions")
+            axes[i].set_ylabel("States")
+            image = axes[i].imshow(V[i, state_neighbours_index, :, state_reward_index])
+            maximums = np.argmax(V[i, state_neighbours_index, :, state_reward_index], axis=1)
+            for j in range(k_s):
+                axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
+            fig.colorbar(image, ax=axes[i])
+    else:
+        axes.set_title("Agent {}".format(0))
+        axes.set_xlabel("Actions")
+        axes.set_ylabel("States")
+        image = axes.imshow(V[0, state_neighbours_index, :, state_reward_index])
+        maximums = np.argmax(V[0, state_neighbours_index, :, state_reward_index], axis=1)
+        for j in range(k_s):
+            axes.text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
+        fig.colorbar(image, ax=axes)
+
+    plt.show()
+
+def plot_visit_matrices_neigh(state_pipe_index, state_reward_index, n_agents, V, k_s):
+    fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
+    fig.suptitle("Pipe relative position state: %d; pipe state: %d" % (state_reward_index, state_pipe_index))
+    if n_agents > 1:
+        for i in range(n_agents):
+            axes[i].set_title("Agent {}".format(i))
+            axes[i].set_xlabel("Actions")
+            axes[i].set_ylabel("States")
+            image = axes[i].imshow(V[i, :-1, state_pipe_index, state_reward_index])
+            maximums = np.argmax(V[i, :-1, state_pipe_index, state_reward_index], axis=1)
+            for j in range(k_s-1):
+                axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
+            fig.colorbar(image, ax=axes[i])
+    else:
+        axes.set_title("Agent {}".format(0))
+        axes.set_xlabel("Actions")
+        axes.set_ylabel("States")
+        image = axes.imshow(V[0, :, state_pipe_index, state_reward_index])
+        maximums = np.argmax(V[0, :, state_pipe_index, state_reward_index], axis=1)
+        for j in range(k_s):
+            axes.text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
+        fig.colorbar(image, ax=axes)
+
+    plt.show()
 
 def plot_Q_matrices(k_s_pipe, n_agents, Q, k_s):
     """
@@ -266,6 +315,15 @@ def plot_Q_matrices(k_s_pipe, n_agents, Q, k_s):
         for j in [15, 16, 17]:
             plot_Q_matrix_neigh(j, i, n_agents, Q, k_s)
 
+def plot_visit_matrices(k_s_pipe, n_agents, V, k_s):
+    """
+    Auxiliary method to plot the Q matrices in a more compact way.
+    """
+    for i in range(k_s_pipe):
+        for j in [16, 32]:
+            plot_visit_matrices_pipe(j, i, n_agents, V, k_s)
+        for j in [15, 16, 17]:
+            plot_visit_matrices_neigh(j, i, n_agents, V, k_s)
 
 def generate_gif_initial(title, data, directory, flag_single_agent):
     x_traj = data["x_traj"]
@@ -299,8 +357,8 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
             if boolean_array_visibility[k]:
                 if not boolean_array_visibility[k-1] and k > 0:
                     plt.plot([k * 5 + 3.5, (k + 1) * 5 + 3.5], [0, 0], 'k')
-                elif k < len(boolean_array_visibility) and not boolean_array_visibility[k+1]:
-                    plt.plot([k * 5, (k + 1) * 5], [0, 0], 'k')
+                # elif k < len(boolean_array_visibility) and not boolean_array_visibility[k+1]:
+                #     plt.plot([k * 5, (k + 1) * 5], [0, 0], 'k')
                 else:
                     plt.plot([k * 5, (k + 1) * 5 + 3.5], [0, 0], 'k')
         # plt.plot([np.min(x_traj[:, 0:end_point_initial]), xlim_r], [0, 0], 'k')

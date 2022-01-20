@@ -45,7 +45,7 @@ t_star_epsilon = 300
 
 # T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
-t_star_lr = 300
+t_star_lr = 500
 
 t_stop = 1500
 
@@ -72,8 +72,8 @@ std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 # distance_from_pipe = R*np.sin(phi/2)
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
-reset_type = "area"
-# reset_type = "line"
+# reset_type = "area"
+reset_type = "line"
 
 # pipe_recognition_probability = 1
 
@@ -91,11 +91,11 @@ forgetting_factor = 0.99
 
 weight_smart_agent = 0.8
 
-visibility_pipe = 1.
+visibility_pipe = 0.5
 
 # reward_follow_smart_agent = 0.8
 
-for j in [2,4,6]:
+for j in [1,2,4]:
     print(j)
     AF = hidden_pipe_environment.HiddenPipeEnvironment(
         theta_max,
@@ -120,14 +120,12 @@ for j in [2,4,6]:
         reset_type,
         gamma,
         prob_no_switch_state,
-        # pipe_recognition_probability,
         flag_spatially_uncorrelated_case,
         std_dev_measure_pipe,
         prob_end_surge,
         forgetting_factor,
         weight_smart_agent,
         visibility_pipe
-        # reward_follow_smart_agent
     )
 
     for i in range(j):
@@ -137,7 +135,7 @@ for j in [2,4,6]:
     else:
         AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_swarming_behavior_6_states/slower_lr_exp_func_weight_%.2f_noise_%.2f_visibility_%.2f/%d_agents' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, j)
+    output_directory = './data_swarming_behavior_6_states/in_line_dep_lr_weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d/%d_agents' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, j)
     print(output_directory)
     pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
