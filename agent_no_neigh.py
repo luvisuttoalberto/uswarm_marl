@@ -1,6 +1,6 @@
 import numpy as np
 from math import pi
-from auxiliary_functions import compute_rotation_matrix
+from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive
 import random
 
 
@@ -9,7 +9,7 @@ class AgentNoNeigh:
     Class that defines a single agent.
     """
 
-    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma):
+    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr):
         """
         Constructor of the agent.
         x and y are the positional coordinates of the agent.
@@ -29,6 +29,8 @@ class AgentNoNeigh:
         self.possible_states = possible_states
         self.R = radius
         self.gamma = gamma
+        self.alpha_0 = alpha_0
+        self.t_star_lr = t_star_lr
 
         #       Current angle of orientation of the agent
         self.Beta = np.arctan2(v[1], v[0])
@@ -52,7 +54,7 @@ class AgentNoNeigh:
 
         #       Boolean auxiliary value stating if the pipe is in the field of view of the agent
         self.flag_is_agent_seeing_the_pipe = False
-        self.flag_agent_knows_info_on_position_of_pipe = False
+        # self.flag_agent_knows_info_on_position_of_pipe = False
 
         # Initialization of the Q matrix (Optimistic approach: initialized at the maximum possible value of the
         # reward) self.Q = np.ones([len(self.possible_states), K_s_pipe, self.K_a])*maximum_reward
@@ -64,7 +66,7 @@ class AgentNoNeigh:
 
         # Initialization of the agent's state to default values; will actually be updated before starting the
         # simulation
-        self.s = [0.0, 0]
+        self.s = [0.0, 1]
         self.old_s = [0.0, 0]
 
         #       Store the reward received by the agent. Needed only for plots
@@ -74,15 +76,27 @@ class AgentNoNeigh:
         # of values.
         self.oriented_distance_from_pipe = 0
 
+        self.last_oriented_distance_from_pipe = 0
+
         self.orientation_of_pipe = 0
 
-        self.timeout_info_pipe = 0
+        # self.timeout_info_pipe = 0
 
         self.angle_pipe = 0
 
         self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
 
-        self.std_dev_measure_pipe = pi/16
+        self.std_dev_measure_pipe = std_dev_measure_pipe
+
+        self.forgetting_factor = forgetting_factor
+
+        self.weight_measure = 1.
+
+        self.weight_measure_neigh = 1.
+
+        self.state_action_rate_visits = np.zeros([len(self.possible_states), k_s_pipe, self.K_a])
+
+        # self.forgetting_factor_neigh = forgetting_factor_neigh
 
     def update_fov_parameters(self):
         """
@@ -149,6 +163,15 @@ class AgentNoNeigh:
         """
         self.p = self.p + self.v0 * delta_t * self.v + np.random.normal(mean, std_dev, size=2) * delta_t
 
+    def update_relative_position_state(self, state):
+        self.old_s[1] = self.s[1]
+        self.s[1] = state
+
+    def update_orientations_state(self, state):
+        # print("Updating state with: ", state[0])
+        self.old_s[0] = self.s[0]
+        self.s[0] = state[0]
+
     def update_state(self, state):
         """
         Updates the agent state.
@@ -156,17 +179,21 @@ class AgentNoNeigh:
         self.old_s = self.s
         self.s = state
 
-    def update_info_on_pipe(self, is_agent_seeing_the_pipe):
+    def update_info_on_pipe(self, is_agent_seeing_the_pipe, first_step):
         self.flag_is_agent_seeing_the_pipe = is_agent_seeing_the_pipe
         if self.flag_is_agent_seeing_the_pipe:
-            self.timeout_info_pipe = 0
-            self.flag_agent_knows_info_on_position_of_pipe = True
-        else:
-            self.timeout_info_pipe += 1
-            if self.timeout_info_pipe > 10:
-                self.flag_agent_knows_info_on_position_of_pipe = False
-        self.angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
-        self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
+            # self.timeout_info_pipe = 0
+            # self.flag_agent_knows_info_on_position_of_pipe = True
+            self.measure_angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
+            if not first_step:
+                self.weight_measure = self.forgetting_factor*self.weight_measure + 1
+            self.angle_pipe = (1-1/self.weight_measure)*self.angle_pipe + self.measure_angle_pipe/self.weight_measure
+            self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
+            self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
+        # else:
+        #     self.timeout_info_pipe += 1
+        #     if self.timeout_info_pipe > 10:
+        #         self.flag_agent_knows_info_on_position_of_pipe = False
 
     def obtain_action_index_greedy_policy(self, exploration_rate):
         """
@@ -176,7 +203,10 @@ class AgentNoNeigh:
         if random.uniform(0, 1) < exploration_rate:
             prob_actions = np.ones(self.K_a) / self.K_a
         else:
+            # print("Current state: ", self.s)
             state_indexes = self.obtain_state_indexes(self.s)
+            # print("First index state: ", state_indexes[0])
+            # print("Second index state: ", state_indexes[1])
             best_value = np.max(self.Q[state_indexes[0], state_indexes[1]])
             best_actions = (self.Q[state_indexes[0], state_indexes[1]] == best_value)
             prob_actions = best_actions / np.sum(best_actions)
@@ -197,9 +227,13 @@ class AgentNoNeigh:
 
         if state[0] == self.possible_states[-1]:  # no neighbours state
             state_index_pipe = len(self.possible_states) - 1
+            # print("no_neighbors")
         else:
+            # print("neighbors")
+            # print(state[0])
             state_index_pipe = np.where(self.possible_states == state[0])
 
+        # print(state_index_pipe)
         return [state_index_pipe, int(state[1])]
 
     # def update_Q_matrix_Q_learning(self, learning_rate, reward):
@@ -214,7 +248,7 @@ class AgentNoNeigh:
     #         old_state_indexes[0], old_state_indexes[1], self.a])
     #     self.Q[old_state_indexes[0], old_state_indexes[1], self.a] += learning_rate * delta_Q
 
-    def update_Q_matrix_exp_sarsa(self, learning_rate, reward, exploration_rate, done):
+    def update_Q_matrix_exp_sarsa(self, reward, exploration_rate, done):
         """
         Updates the Q matrix of the agent, according to the given learning rate and reward.
         """
@@ -228,12 +262,20 @@ class AgentNoNeigh:
                                        self.obtain_policy_probabilities(new_state_indexes, exploration_rate)) - self.Q[
                            old_state_indexes[0], old_state_indexes[1], self.a])
 
-        self.Q[old_state_indexes[0], old_state_indexes[1], self.a] += learning_rate * delta_Q
         if exploration_rate == 0:
             self.Q_visits[old_state_indexes[0], old_state_indexes[1]] += 1
+            learning_rate = 0
+        else:
+            learning_rate = learning_rate_adaptive(self.state_action_rate_visits[old_state_indexes[0], old_state_indexes[1], self.a],
+                                                   self.alpha_0,
+                                                   self.t_star_lr)
+            self.state_action_rate_visits[old_state_indexes[0], old_state_indexes[1], self.a] += 1
+        self.Q[old_state_indexes[0], old_state_indexes[1], self.a] += learning_rate * delta_Q
 
     def obtain_policy_probabilities(self, state_indexes, exploration_rate):
         policy = np.ones(self.K_a) / self.K_a * exploration_rate
+        # print(state_indexes[0])
+        # print(state_indexes[1])
         best_value = np.max(self.Q[state_indexes[0], state_indexes[1]])
         best_actions = (self.Q[state_indexes[0], state_indexes[1]] == best_value)
         policy += np.reshape(best_actions / np.sum(best_actions) * (1 - exploration_rate), -1)
