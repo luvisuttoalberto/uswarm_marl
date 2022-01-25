@@ -1,3 +1,4 @@
+import math
 import pathlib
 
 import matplotlib.pyplot as plt
@@ -145,27 +146,45 @@ def plot_Q_matrix_pipe(state_neighbours_index, state_reward_index, n_agents, Q, 
         Plots the Q matrices of each agent, given a "pipe" state index.
         In this way we can better visualize the values of the state-action matrix in and out of the reward region.
         """
+    titles = ['Left', 'Sees the pipe', 'Right', 'Just lost', "Close left", "Close right"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
-    fig.suptitle("Pipe relative position state: %d; neighbors state: %d" % (state_reward_index, state_neighbours_index))
+    action_ticks = np.arange(7)
+    action_labels = ["%.1f" % (-3*math.pi/16), "%.1f" % (-2*math.pi/16), "%.1f" % (-math.pi/16), 0, "%.1f" % (math.pi/16), "%.1f" % (2*math.pi/16), "%.1f" % (3*math.pi/16)]
+    state_ticks = np.arange(k_s)
+    if state_neighbours_index == 32:
+        fig.suptitle("Relative position state: %s \n Neighbors state: no neighbors" % titles[state_reward_index])
+    else:
+        fig.suptitle("Relative position state: %s \n Neighbors state: %d" % (titles[state_reward_index], state_neighbours_index))
+
     if n_agents > 1:
         for i in range(n_agents):
             axes[i].set_title("Agent {}".format(i))
-            axes[i].set_xlabel("Actions")
-            axes[i].set_ylabel("States")
+            axes[i].set_xlabel("Actions (rotation applied)")
+            axes[i].set_ylabel("Pipe states")
             image = axes[i].imshow(Q[i, state_neighbours_index, :-1, state_reward_index])
             maximums = np.argmax(Q[i, state_neighbours_index, :-1, state_reward_index], axis=1)
             for j in range(k_s-1):
                 axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
             fig.colorbar(image, ax=axes[i])
+            axes[i].set_xticks(action_ticks, labelsize = 1)
+            axes[i].set_yticks(state_ticks[:-1])
+            axes[i].set_xticklabels(action_labels)
+            axes[i].tick_params(labelleft = True)
+            axes[i].tick_params(axis='x', labelsize = 8)
     else:
         axes.set_title("Agent {}".format(0))
-        axes.set_xlabel("Actions")
-        axes.set_ylabel("States")
+        axes.set_xlabel("Actions (rotation applied)")
+        axes.set_ylabel("Pipe states")
         image = axes.imshow(Q[0, state_neighbours_index, :-1, state_reward_index])
         maximums = np.argmax(Q[0, state_neighbours_index, :-1, state_reward_index], axis=1)
         for j in range(k_s-1):
             axes.text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
         fig.colorbar(image, ax=axes)
+        axes.set_xticks(action_ticks)
+        axes.set_yticks(state_ticks[:-1])
+        axes.set_xticklabels(action_labels)
+        axes.tick_params(labelleft = True)
+        axes.tick_params(axis='x', labelsize = 8)
 
     plt.show()
 
@@ -175,27 +194,42 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
         Plots the Q matrices of each agent, given a "pipe" state index.
         In this way we can better visualize the values of the state-action matrix in and out of the reward region.
         """
+    action_ticks = np.arange(7)
+    state_ticks = np.arange(k_s)
+    titles = ['Left', 'Sees the pipe', 'Right', 'Just lost', "Close left", "Close right"]
+    action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0,
+                     "%.1f" % (math.pi / 16), "%.1f" % (2 * math.pi / 16), "%.1f" % (3 * math.pi / 16)]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
-    fig.suptitle("Pipe relative position state: %d; pipe state: %d" % (state_reward_index, state_pipe_index))
+    fig.suptitle("Relative position state: %s \n Pipe state: %d" % (titles[state_reward_index], state_pipe_index))
     if n_agents > 1:
         for i in range(n_agents):
             axes[i].set_title("Agent {}".format(i))
-            axes[i].set_xlabel("Actions")
-            axes[i].set_ylabel("States")
+            axes[i].set_xlabel("Actions (rotation applied)")
+            axes[i].set_ylabel("Neighbors states")
             image = axes[i].imshow(Q[i, :, state_pipe_index, state_reward_index])
             maximums = np.argmax(Q[i, :, state_pipe_index, state_reward_index], axis=1)
             for j in range(k_s):
                 axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
             fig.colorbar(image, ax=axes[i])
+            axes[i].set_xticks(action_ticks)
+            axes[i].set_yticks(state_ticks)
+            axes[i].set_xticklabels(action_labels)
+            axes[i].tick_params(labelleft=True)
+            axes[i].tick_params(axis='x', labelsize=9)
     else:
         axes.set_title("Agent {}".format(0))
-        axes.set_xlabel("Actions")
-        axes.set_ylabel("States")
+        axes.set_xlabel("Actions (rotation applied)")
+        axes.set_ylabel("Neighbors states")
         image = axes.imshow(Q[0, :, state_pipe_index, state_reward_index])
         maximums = np.argmax(Q[0, :, state_pipe_index, state_reward_index], axis=1)
         for j in range(k_s):
             axes.text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
         fig.colorbar(image, ax=axes)
+        axes.set_xticks(action_ticks)
+        axes.set_yticks(state_ticks)
+        axes.set_xticklabels(action_labels)
+        axes.tick_params(labelleft=True)
+        axes.tick_params(axis='x', labelsize=8)
 
     plt.show()
 

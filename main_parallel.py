@@ -10,7 +10,7 @@ filterwarnings("ignore", category=RuntimeWarning)
 # n_agents = 16
 
 # Initial exploration rate
-epsilon_0 = 0.1
+epsilon_0 = 0.3
 
 # Maximum turning angle of the agent per timestep
 theta_max = 3 * pi / 16
@@ -34,20 +34,20 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.998
+gamma = 0.9995
 
 # Number of episodes
-n_episodes = 3200*20
+n_episodes = 3200*5
 
 # T_star epsilon (Timestep in the learning at which the exploration rate starts to decrease)
 # Can be different from t_star_lr
-t_star_epsilon = 600*20
+t_star_epsilon = 600*5
 
 # T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
 t_star_lr = 6000
 
-t_stop = 3200*20-100
+t_stop = 3200*5-100
 
 # Initial learning rate
 alpha_0 = 0.005
@@ -75,7 +75,7 @@ std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 reset_type = "area"
 # reset_type = "line"
 
-pipe_recognition_probability = 1.
+pipe_recognition_probability = 0.95
 
 flag_spatially_uncorrelated_case = False
 
@@ -91,7 +91,7 @@ forgetting_factor = 0.99
 
 weight_smart_agent = 0.8
 
-visibility_pipe = 0.75
+visibility_pipe = 1.
 
 # reward_follow_smart_agent = 0.8
 
@@ -138,7 +138,7 @@ for j in [1,2,4]:
     else:
         AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f/%d_agents' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0,  j)
+    output_directory = './data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, j)
     print(output_directory)
     pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 

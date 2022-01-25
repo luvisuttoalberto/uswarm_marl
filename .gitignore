@@ -12,3 +12,4 @@ __pycache__/
 /results_multiple_trajectory/
 /data_baseline_new_reward/
 /data_swarming_behavior_new_reward/
+/data_constant_recognition/

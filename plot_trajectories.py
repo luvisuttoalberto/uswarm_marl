@@ -25,9 +25,12 @@ gamma = 0.999
 
 epsilon_0 = 0.3
 
+reset_type = "line"
+
 # data_for_plots = np.load('./vecchi data/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, n_agents))
 
-data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, n_agents))
+# data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, n_agents))
+data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f_reset_%s/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, reset_type, n_agents))
 
 # data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, n_agents))
 # data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, n_agents))
@@ -40,10 +43,10 @@ data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_
 # data_for_plots = np.load("./data_swarming_behavior_6_states/average_neigh_in_line_dep_lr_weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d/%d_agents/data_for_plots.npz" % (weight_smart_agent, std_dev_measure_pipe,visibility_pipe, t_star_lr, n_agents))
 # data_for_plots = np.load("./data_swarming_behavior_6_states/slower_lr_exp_func_weight_%.2f_noise_%.2f_visibility_%.2f/%d_agents/data_for_plots.npz" % (weight_smart_agent, std_dev_measure_pipe,visibility_pipe, n_agents))
 
-plot_maximum_distance(data_for_plots["maximum_distance_towards_objective"])
-plot_average_highest_reward(data_for_plots["average_highest_reward"])
-plot_fraction_visited_pipes(data_for_plots["fraction_of_seen_sections_of_pipe"])
-plot_average_fraction_visited_pipes(data_for_plots["average_fraction_pipe"])
+# plot_maximum_distance(data_for_plots["maximum_distance_towards_objective"])
+# plot_average_highest_reward(data_for_plots["average_highest_reward"])
+# plot_fraction_visited_pipes(data_for_plots["fraction_of_seen_sections_of_pipe"])
+# plot_average_fraction_visited_pipes(data_for_plots["average_fraction_pipe"])
 
 K_a = data_for_plots["K_a"]
 K_s = data_for_plots["K_s"]
@@ -65,7 +68,7 @@ Q_visits = Q_visits/(np.max(Q_visits))
 # for i in range(n_agents):
 #     plot_policy(K_s, K_s_pipe, arrows_action, Q_matrices[i], Q_visits[i], i)
 
-# plot_Q_matrices(K_s_pipe, n_agents, Q_matrices, K_s)
+plot_Q_matrices(K_s_pipe, n_agents, Q_matrices, K_s)
 
 V_matrices = data_for_plots["global_state_action_rate_visits"]
 # V_matrices[V_matrices > 0] = np.log(V_matrices[V_matrices > 0])

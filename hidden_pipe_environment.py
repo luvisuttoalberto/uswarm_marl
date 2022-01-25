@@ -304,11 +304,10 @@ class HiddenPipeEnvironment:
     def obtain_relative_position_state(self, index):
         # Pipe state computation
         agent = self.agents_list[index]
-        # state_relative_position = -1
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
-            if -1 < agent.oriented_distance_from_pipe < 1:
+            if -0.5 < agent.oriented_distance_from_pipe < 0.5:
                 state_relative_position = 1
-            elif agent.oriented_distance_from_pipe < -1:
+            elif agent.oriented_distance_from_pipe < -0.5:
                 state_relative_position = 4
             else:
                 state_relative_position = 5
@@ -331,8 +330,35 @@ class HiddenPipeEnvironment:
                 else:
                     state_relative_position = 0
 
-        # if state_relative_position == -1:
-        #     print("ERRORE: previous s = ", agent.s[2])
+        return state_relative_position
+
+    def obtain_relative_position_state_new(self, index):
+        agent = self.agents_list[index]
+        if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
+            if -0.5 < agent.oriented_distance_from_pipe < 0.5:
+                state_relative_position = 1
+            elif agent.oriented_distance_from_pipe < -0.5:
+                state_relative_position = 4
+            else:
+                state_relative_position = 5
+        elif agent.s[2] == 1:
+            state_relative_position = 3
+        elif agent.s[2] == 3:
+            if np.random.binomial(1, self.prob_end_surge):
+                if agent.last_oriented_distance_from_pipe > 0:
+                    state_relative_position = 0
+                else:
+                    state_relative_position = 2
+            else:
+                state_relative_position = agent.s[2]
+        else:
+            if np.random.binomial(1, self.prob_no_switch_state):
+                state_relative_position = agent.s[2]
+            else:
+                if agent.s[2] == 0:
+                    state_relative_position = 2
+                else:
+                    state_relative_position = 0
 
         return state_relative_position
 

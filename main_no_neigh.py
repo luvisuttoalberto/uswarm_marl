@@ -10,7 +10,7 @@ filterwarnings("ignore", category=RuntimeWarning)
 # n_agents = 1
 
 # Initial exploration rate
-epsilon_0 = 0.3
+epsilon_0 = 0.1
 
 # Maximum turning angle of the agent per timestep
 theta_max = 3 * pi / 16
