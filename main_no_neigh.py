@@ -10,7 +10,7 @@ filterwarnings("ignore", category=RuntimeWarning)
 # n_agents = 1
 
 # Initial exploration rate
-epsilon_0 = 0.1
+epsilon_0 = 0.3
 
 # Maximum turning angle of the agent per timestep
 theta_max = 3 * pi / 16
@@ -25,7 +25,7 @@ R = 4
 k_s = 33
 
 # Number of possible "pipe" states
-k_s_pipe = 6
+k_s_pipe = 5
 
 # Number of possible turning angles [= number of possible actions]
 k_a = 7
@@ -75,7 +75,7 @@ std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 reset_type = "area"
 # reset_type = "line"
 
-pipe_recognition_probability = 1
+pipe_recognition_probability = 0.95
 
 flag_spatially_uncorrelated_case = False
 
@@ -89,7 +89,7 @@ prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
-visibility_pipe = 0.75
+visibility_pipe = 1.
 
 for j in [1,2,4]:
     print(j)
@@ -132,7 +132,7 @@ for j in [1,2,4]:
     else:
         AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_baseline_new_reward/noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f/%d_agents' % (std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0,  j)
+    output_directory = './data_baseline_new_reward/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, j)
     print(output_directory)
     pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 

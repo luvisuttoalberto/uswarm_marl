@@ -273,7 +273,6 @@ class HiddenPipeEnvironment:
         # computed as the distance of a point from a line (with sign)
         return (position[1] - self.slope_pipe * position[0] - self.offset_pipe) / self.auxiliary_den_dist_line
 
-
     def is_agent_seeing_the_pipe(self, index):
         agent = self.agents_list[index]
         if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5, self.flag_spatially_uncorrelated_case):
@@ -311,7 +310,7 @@ class HiddenPipeEnvironment:
                 state_relative_position = 4
             else:
                 state_relative_position = 5
-        elif agent.s[2] == 1:
+        elif agent.s[2] in [1, 4, 5]:
             state_relative_position = 3
         elif agent.s[2] == 3:
             if np.random.binomial(1, self.prob_end_surge):
@@ -336,29 +335,20 @@ class HiddenPipeEnvironment:
         agent = self.agents_list[index]
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -0.5 < agent.oriented_distance_from_pipe < 0.5:
-                state_relative_position = 1
+                state_relative_position = 0
             elif agent.oriented_distance_from_pipe < -0.5:
-                state_relative_position = 4
+                state_relative_position = 1
             else:
-                state_relative_position = 5
-        elif agent.s[2] == 1:
+                state_relative_position = 2
+        elif agent.s[2] in [0, 1, 2]:
             state_relative_position = 3
         elif agent.s[2] == 3:
             if np.random.binomial(1, self.prob_end_surge):
-                if agent.last_oriented_distance_from_pipe > 0:
-                    state_relative_position = 0
-                else:
-                    state_relative_position = 2
+                state_relative_position = 4
             else:
                 state_relative_position = agent.s[2]
         else:
-            if np.random.binomial(1, self.prob_no_switch_state):
-                state_relative_position = agent.s[2]
-            else:
-                if agent.s[2] == 0:
-                    state_relative_position = 2
-                else:
-                    state_relative_position = 0
+            state_relative_position = agent.s[2]
 
         return state_relative_position
 
@@ -474,7 +464,6 @@ class HiddenPipeEnvironment:
     #             # return 0.9
     #     return 0
 
-
     # def obtain_reward_of_agent_swarm(self, index):
     #     """
     #     Obtains the reward of agent "index"
@@ -546,7 +535,7 @@ class HiddenPipeEnvironment:
 
         # State update
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
@@ -629,7 +618,7 @@ class HiddenPipeEnvironment:
                 self.boolean_array_visited_pipes[i][floor(self.agents_list[i].p[0])] = 1
 
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
@@ -712,7 +701,7 @@ class HiddenPipeEnvironment:
         for i in range(self.n_agents):
             frequencies_for_policy_plots[i] = self.agents_list[i].Q_visits
 
-        global_state_action_rate_visits = np.zeros([self.n_agents, len(self.possible_states), len(self.possible_states), self.K_s_pipe, self.K_a] )
+        global_state_action_rate_visits = np.zeros([self.n_agents, len(self.possible_states), len(self.possible_states), self.K_s_pipe, self.K_a])
         for i in range(self.n_agents):
             global_state_action_rate_visits[i] = self.agents_list[i].state_action_rate_visits
 

@@ -76,7 +76,7 @@ class AgentNoNeigh:
         # of values.
         self.oriented_distance_from_pipe = 0
 
-        self.last_oriented_distance_from_pipe = 0
+        # self.last_oriented_distance_from_pipe = 0
 
         self.orientation_of_pipe = 0
 
@@ -189,7 +189,7 @@ class AgentNoNeigh:
                 self.weight_measure = self.forgetting_factor*self.weight_measure + 1
             self.angle_pipe = (1-1/self.weight_measure)*self.angle_pipe + self.measure_angle_pipe/self.weight_measure
             self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
-            self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
+            # self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
         # else:
         #     self.timeout_info_pipe += 1
         #     if self.timeout_info_pipe > 10:

@@ -25,7 +25,7 @@ R = 4
 k_s = 33
 
 # Number of possible "pipe" states
-k_s_pipe = 6
+k_s_pipe = 5
 
 # Number of possible turning angles [= number of possible actions]
 k_a = 7
@@ -34,20 +34,20 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.9995
+gamma = 0.99
 
 # Number of episodes
-n_episodes = 3200*5
+n_episodes = 3200
 
 # T_star epsilon (Timestep in the learning at which the exploration rate starts to decrease)
 # Can be different from t_star_lr
-t_star_epsilon = 600*5
+t_star_epsilon = 600
 
 # T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
 t_star_lr = 6000
 
-t_stop = 3200*5-100
+t_stop = 3200-100
 
 # Initial learning rate
 alpha_0 = 0.005

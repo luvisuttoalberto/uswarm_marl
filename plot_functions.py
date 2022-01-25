@@ -118,26 +118,40 @@ def plot_average_fraction_visited_pipes(average_fraction_pipe):
     plt.show()
 
 def plot_Q_matrix_no_neigh_version(state_reward_index, n_agents, Q, k_s):
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
+    action_ticks = np.arange(7)
+    action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0, "%.1f" % (math.pi / 16), "%.1f" % (2 * math.pi / 16), "%.1f" % (3 * math.pi / 16)]
+    state_ticks = np.arange(k_s)
     fig.suptitle("Pipe relative position state: %d" % state_reward_index)
     if n_agents <= 1:
-        axes.set_xlabel("Actions")
-        axes.set_ylabel("States")
+        axes.set_xlabel("Actions (rotation applied")
+        axes.set_ylabel("Pipe states")
         image = axes.imshow(Q[0, :, state_reward_index])
         maximums = np.argmax(Q[0, :, state_reward_index], axis=1)
         for j in range(k_s):
             axes.text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
         fig.colorbar(image, ax=axes)
+        axes.set_xticks(action_ticks)
+        axes.set_yticks(state_ticks[:])
+        axes.set_xticklabels(action_labels)
+        axes.tick_params(labelleft=True)
+        axes.tick_params(axis='x', labelsize=8)
     else:
         for i in range(n_agents):
             axes[i].set_title("Agent {}".format(i))
-            axes[i].set_xlabel("Actions")
-            axes[i].set_ylabel("States")
+            axes[i].set_xlabel("Actions (rotation applied)")
+            axes[i].set_ylabel("Pipe states")
             image = axes[i].imshow(Q[i, :, state_reward_index])
             maximums = np.argmax(Q[i, :, state_reward_index], axis=1)
             for j in range(k_s):
                 axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
             fig.colorbar(image, ax=axes[i])
+            axes[i].set_xticks(action_ticks, labelsize=1)
+            axes[i].set_yticks(state_ticks[:])
+            axes[i].set_xticklabels(action_labels)
+            axes[i].tick_params(labelleft=True)
+            axes[i].tick_params(axis='x', labelsize=8)
     plt.show()
 
 
@@ -146,7 +160,7 @@ def plot_Q_matrix_pipe(state_neighbours_index, state_reward_index, n_agents, Q, 
         Plots the Q matrices of each agent, given a "pipe" state index.
         In this way we can better visualize the values of the state-action matrix in and out of the reward region.
         """
-    titles = ['Left', 'Sees the pipe', 'Right', 'Just lost', "Close left", "Close right"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     action_ticks = np.arange(7)
     action_labels = ["%.1f" % (-3*math.pi/16), "%.1f" % (-2*math.pi/16), "%.1f" % (-math.pi/16), 0, "%.1f" % (math.pi/16), "%.1f" % (2*math.pi/16), "%.1f" % (3*math.pi/16)]
@@ -196,7 +210,7 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
         """
     action_ticks = np.arange(7)
     state_ticks = np.arange(k_s)
-    titles = ['Left', 'Sees the pipe', 'Right', 'Just lost', "Close left", "Close right"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
     action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0,
                      "%.1f" % (math.pi / 16), "%.1f" % (2 * math.pi / 16), "%.1f" % (3 * math.pi / 16)]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
@@ -237,7 +251,7 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
 def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
     X = np.arange(k_s)
     Y = np.arange(k_s)
-    titles = ['Left', 'Sees the pipe', 'Right', 'Just lost', "Close left", "Close right"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
 
     for j in range(k_s_pipe):
         fig = plt.figure(figsize=(25, 25))

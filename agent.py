@@ -76,7 +76,7 @@ class Agent:
         # of values.
         self.oriented_distance_from_pipe = 0
 
-        self.last_oriented_distance_from_pipe = 0
+        # self.last_oriented_distance_from_pipe = 0
 
         self.orientation_of_pipe = 0
 
@@ -190,7 +190,7 @@ class Agent:
                 self.weight_measure = self.forgetting_factor * self.weight_measure + 1
             self.angle_pipe = (1-1/self.weight_measure)*self.angle_pipe + measure_angle_pipe/self.weight_measure
             self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
-            self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
+            # self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
 
     # def update_orientation_neighbors(self, new_velocity):
     #     if self.weight_measure_neigh != 1:

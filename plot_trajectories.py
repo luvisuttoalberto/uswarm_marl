@@ -11,26 +11,28 @@ np.set_printoptions(threshold=np.inf)
 
 n_agents = 4
 
-pipe_recognition_probability = 1.
+pipe_recognition_probability = 0.95
 
 weight_smart_agent = 0.8
 
 std_dev_measure_pipe = pi/16.
 
-visibility_pipe = 0.75
+visibility_pipe = 1.
 
 t_star_lr = 6000
 
-gamma = 0.999
+gamma = 0.99
 
 epsilon_0 = 0.3
 
-reset_type = "line"
+reset_type = "area"
+
+data_for_plots = np.load('./data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents/data_for_plots.npz' % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents))
 
 # data_for_plots = np.load('./vecchi data/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, n_agents))
 
 # data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, n_agents))
-data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f_reset_%s/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, reset_type, n_agents))
+# data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f_reset_%s/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, reset_type, n_agents))
 
 # data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, n_agents))
 # data_for_plots = np.load('./data_swarming_behavior_new_reward/weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f/%d_agents/data_for_plots.npz' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, n_agents))

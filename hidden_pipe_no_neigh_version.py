@@ -233,15 +233,14 @@ class HiddenPipeEnvironmentNoNeigh:
 
     def obtain_relative_position_state(self, index):
         agent = self.agents_list[index]
-        state_relative_position = -1
         if agent.flag_is_agent_seeing_the_pipe:
-            if -1 < agent.oriented_distance_from_pipe < 1:
+            if -0.5 < agent.oriented_distance_from_pipe < 0.5:
                 state_relative_position = 1
-            elif agent.oriented_distance_from_pipe < -1:
+            elif agent.oriented_distance_from_pipe < -0.5:
                 state_relative_position = 4
             else:
                 state_relative_position = 5
-        elif agent.s[1] == 1:
+        elif agent.s[1] in [1, 4, 5]:
             state_relative_position = 3
         elif agent.s[1] == 3:
             if np.random.binomial(1, self.prob_end_surge):
@@ -260,8 +259,26 @@ class HiddenPipeEnvironmentNoNeigh:
                 else:
                     state_relative_position = 0
 
-        if state_relative_position == -1:
-            print("ERROR: previous s = ", agent.s[1])
+        return state_relative_position
+
+    def obtain_relative_position_state_new(self, index):
+        agent = self.agents_list[index]
+        if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
+            if -0.5 < agent.oriented_distance_from_pipe < 0.5:
+                state_relative_position = 0
+            elif agent.oriented_distance_from_pipe < -0.5:
+                state_relative_position = 1
+            else:
+                state_relative_position = 2
+        elif agent.s[1] in [0, 1, 2]:
+            state_relative_position = 3
+        elif agent.s[1] == 3:
+            if np.random.binomial(1, self.prob_end_surge):
+                state_relative_position = 4
+            else:
+                state_relative_position = agent.s[1]
+        else:
+            state_relative_position = agent.s[1]
 
         return state_relative_position
 
@@ -328,7 +345,7 @@ class HiddenPipeEnvironmentNoNeigh:
 
         # State update
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
@@ -411,7 +428,7 @@ class HiddenPipeEnvironmentNoNeigh:
                 self.boolean_array_visited_pipes[i][floor(self.agents_list[i].p[0])] = 1
 
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
