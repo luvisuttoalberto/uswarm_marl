@@ -5,8 +5,6 @@ from agent import Agent
 from numpy.linalg import norm as euclidean_norm
 import random
 from time import time
-from agent_swarm_check import Agent_swarm_check
-
 
 class HiddenPipeEnvironment:
     """
