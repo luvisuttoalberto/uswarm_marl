@@ -1,0 +1,122 @@
+import pathlib
+import numpy as np
+from math import pi
+from hidden_pipe_benchmark_swarm import HiddenPipeEnvironmentBenchmark
+from warnings import filterwarnings
+
+filterwarnings("ignore", category=RuntimeWarning)
+
+# Number of agents
+# n_agents = 16
+
+# Maximum turning angle of the agent per timestep
+theta_max = 3 * pi / 16
+
+# Absolute value of the speed of the agent
+v0 = 0.3
+
+# Radius of the agent's area of vision; used to determine the agent's neighbours
+R = 4
+
+# Number of possible "neighbours" states (32 + the "no neighbours" state)
+k_s = 33
+
+# Number of possible "pipe" states
+k_s_pipe = 5
+
+# Number of possible turning angles [= number of possible actions]
+k_a = 7
+
+# Half of the agent's angle of view. (Total angle will be 2*phi)
+phi = 0.5
+
+# Discount factor (survival probability)
+gamma = 0.999
+
+# Number of episodes
+n_episodes = 1000
+
+# Parameters describing the pipe to be followed (in this case a straight line, pointing to the right)
+slope_pipe = 0
+offset_pipe = 0
+
+# Mean and standard deviation for the gaussian noise on the position
+mean_position_noise = 0
+std_dev_position_noise = 0.01
+
+# Mean and standard deviation for the gaussian noise on the velocity angle
+mean_velocity_noise = 0
+# Computed to assure that the noise on the velocity won't cause the loss of a neighbour in less than 10 timesteps
+std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
+
+# Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
+reset_type = "area"
+# reset_type = "line"
+
+pipe_recognition_probability = 0.95
+
+flag_spatially_uncorrelated_case = False
+
+prob_no_switch_state = 0.9
+
+std_dev_measure_pipe = pi/16.
+
+print(std_dev_measure_pipe)
+
+prob_end_surge = 1/15.
+
+forgetting_factor = 0.99
+
+visibility_pipe = 0.9
+
+forgetting_factor_neigh = 0.9
+
+n_agents = 4
+
+print(n_agents)
+AF = HiddenPipeEnvironmentBenchmark(
+    theta_max,
+    v0,
+    R,
+    k_s,
+    k_s_pipe,
+    k_a,
+    phi,
+    n_episodes,
+    slope_pipe,
+    offset_pipe,
+    mean_velocity_noise,
+    mean_position_noise,
+    std_dev_velocity_noise,
+    std_dev_position_noise,
+    reset_type,
+    gamma,
+    prob_no_switch_state,
+    flag_spatially_uncorrelated_case,
+    std_dev_measure_pipe,
+    prob_end_surge,
+    forgetting_factor,
+    visibility_pipe,
+    pipe_recognition_probability
+)
+
+epsilon_0 = 0.3
+
+input_directory = "./data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents" % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
+
+data_for_plots = np.load('%s/data_for_plots.npz' % input_directory)
+
+Q_matrices = data_for_plots["Q_matrices"]
+
+for i in range(n_agents):
+    AF.add_agent(i*0.5, 0, np.array([1, 0]), Q_matrices[i])
+if reset_type == "line":
+    AF.reset_position_and_velocities_in_line()
+else:
+    AF.reset_position_and_velocities_in_area()
+
+output_directory = './data_benchmark_swarm/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
+print(output_directory)
+pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
+
+AF.complete_simulation(100, output_directory)
