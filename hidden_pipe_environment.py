@@ -5,6 +5,7 @@ from agent import Agent
 from numpy.linalg import norm as euclidean_norm
 import random
 from time import time
+from agent_swarm_check import Agent_swarm_check
 
 
 class HiddenPipeEnvironment:
@@ -41,7 +42,8 @@ class HiddenPipeEnvironment:
                  forgetting_factor,
                  weight_smart_agent,
                  visibility_pipe,
-                 pipe_recognition_probability):
+                 pipe_recognition_probability,
+                 prob_end_lost_state):
         """
         Constructor of the class.
         """
@@ -177,6 +179,10 @@ class HiddenPipeEnvironment:
         self.visibility_pipe = visibility_pipe
 
         self.pipe_recognition_probability = pipe_recognition_probability
+
+        self.prob_end_lost_state = prob_end_lost_state
+
+        # self.flag_benchmark_swarm_check = flag_benchmark_swarm_check
 
     def add_agent(self, x, y, v):
         """
@@ -348,7 +354,10 @@ class HiddenPipeEnvironment:
             else:
                 state_relative_position = agent.s[2]
         else:
-            state_relative_position = agent.s[2]
+            if np.random.binomial(1, self.prob_end_lost_state):
+                state_relative_position = 5
+            else:
+                state_relative_position = agent.s[2]
 
         return state_relative_position
 
@@ -687,7 +696,8 @@ class HiddenPipeEnvironment:
         start_time = time()
         for j in range(self.n_episodes):
 
-            save_trajectory = j % interval_print_data == 0 or j == self.n_episodes - 1 or j == self.n_episodes - 50 or j == self.n_episodes - 100
+            # save_trajectory = j % interval_print_data == 0 or j == self.n_episodes - 1 or j == self.n_episodes - 50 or j == self.n_episodes - 100
+            save_trajectory = j % interval_print_data == 0 or j in [self.n_episodes - 1, self.n_episodes - 50, self.n_episodes - 100]
             self.simulate_episode(j, save_trajectory)
             if j % (self.n_episodes / 10) == 0:
                 print(100 * (j / self.n_episodes), " %, elapsed time: ", time() - start_time)

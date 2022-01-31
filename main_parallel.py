@@ -25,7 +25,7 @@ R = 4
 k_s = 33
 
 # Number of possible "pipe" states
-k_s_pipe = 5
+k_s_pipe = 6
 
 # Number of possible turning angles [= number of possible actions]
 k_a = 7
@@ -34,20 +34,20 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.99
+gamma = 0.999
 
 # Number of episodes
-n_episodes = 3200
+n_episodes = 3200*10
 
 # T_star epsilon (Timestep in the learning at which the exploration rate starts to decrease)
 # Can be different from t_star_lr
-t_star_epsilon = 600
+t_star_epsilon = 600*10
 
 # T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
 t_star_lr = 6000
 
-t_stop = 3200-100
+t_stop = 3200*10-100
 
 # Initial learning rate
 alpha_0 = 0.005
@@ -91,13 +91,15 @@ forgetting_factor = 0.99
 
 weight_smart_agent = 0.8
 
-visibility_pipe = 1.
+visibility_pipe = 0.75
 
 # reward_follow_smart_agent = 0.8
 
 forgetting_factor_neigh = 0.9
 
-for j in [1,2,4]:
+prob_end_lost_state = 1/50.
+
+for j in [4]:
     print(j)
     AF = hidden_pipe_environment.HiddenPipeEnvironment(
         theta_max,
@@ -128,7 +130,8 @@ for j in [1,2,4]:
         forgetting_factor,
         weight_smart_agent,
         visibility_pipe,
-        pipe_recognition_probability
+        pipe_recognition_probability,
+        prob_end_lost_state
     )
 
     for i in range(j):
@@ -138,8 +141,8 @@ for j in [1,2,4]:
     else:
         AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, j)
+    output_directory = './data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_prob_end_lost_%.3f/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, prob_end_lost_state, j)
     print(output_directory)
     pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
-    AF.complete_simulation(500, output_directory)
+    AF.complete_simulation(5000, output_directory)
