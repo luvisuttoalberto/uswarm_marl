@@ -9,7 +9,7 @@ class Agent:
     Class that defines a single agent.
     """
 
-    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr):
+    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr, Q = None):
         """
         Constructor of the agent.
         x and y are the positional coordinates of the agent.
@@ -58,7 +58,10 @@ class Agent:
 
         # Initialization of the Q matrix (Optimistic approach: initialized at the maximum possible value of the
         # reward) self.Q = np.ones([len(self.possible_states), K_s_pipe, self.K_a])*maximum_reward
-        self.Q = np.zeros([len(self.possible_states), len(self.possible_states), k_s_pipe, self.K_a])
+        if Q is None:
+            self.Q = np.zeros([len(self.possible_states), len(self.possible_states), k_s_pipe, self.K_a])
+        else:
+            self.Q = Q
 
         self.Q_visits = np.zeros([len(self.possible_states), len(self.possible_states), k_s_pipe])
 
