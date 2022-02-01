@@ -182,7 +182,7 @@ class HiddenPipeEnvironment:
 
         # self.flag_benchmark_swarm_check = flag_benchmark_swarm_check
 
-    def add_agent(self, x, y, v):
+    def add_agent(self, x, y, v, Q = None):
         """
         Adds a new agent to the environment, given its position and velocity; updates related parameters and data
         structures.
@@ -200,7 +200,8 @@ class HiddenPipeEnvironment:
                           self.std_dev_measure_pipe,
                           self.forgetting_factor,
                           self.alpha_0,
-                          self.t_star_lr)
+                          self.t_star_lr,
+                          Q)
         new_agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(new_agent.p)
         self.agents_list.append(new_agent)
         self.n_agents += 1
@@ -464,22 +465,6 @@ class HiddenPipeEnvironment:
         else:  # agent is not in the reward region
             return -1
 
-    # def obtain_additional_reward_from_neighbors(self, index):
-    #     for i in [x for x in range(self.n_agents) if x != index and self.compute_distance(index, x) < self.R and self.agents_list[index].is_point_in_field_of_view(self.agents_list[x].p)]:
-    #         if self.agents_list[i].flag_is_agent_seeing_the_pipe:
-    #             return self.reward_follow_smart_agent
-    #             # return 0.9
-    #     return 0
-
-    # def obtain_reward_of_agent_swarm(self, index):
-    #     """
-    #     Obtains the reward of agent "index"
-    #     """
-    #     if self.agents_list[index].flag_is_agent_seeing_the_pipe:
-    #         return np.cos(self.agents_list[index].Beta - self.agents_list[index].angle_pipe)
-    #     else:  # agent is not in the reward region
-    #         return self.obtain_additional_reward_from_neighbors(index)
-
     def save_episode_trajectories(self, t):
         """
         Auxiliary method that saves trajectories, needed only for detailed intermediate plots of the single episode.
@@ -496,15 +481,6 @@ class HiddenPipeEnvironment:
             # self.frequency_state_reward_region[i][agent_state_indexes[2]] += 1
             # self.frequency_state_neighbours[i, agent_state_indexes[0]] += 1
             # self.frequency_state_pipe[i, agent_state_indexes[1]] += 1
-
-    # def update_polar_order_parameter(self, current_episode):
-    #     """
-    #     Auxiliary method that updates the polar order parameter vector in the correspondent episode.
-    #     """
-    #     velocities_sum = np.zeros(self.agents_list[0].v.shape)
-    #     for i in range(self.n_agents):
-    #         velocities_sum += self.agents_list[i].v
-    #     self.polar_order_param[current_episode] += euclidean_norm(velocities_sum) / self.n_agents
 
     def simulation_step(self, t, current_episode):
         """
@@ -665,7 +641,13 @@ class HiddenPipeEnvironment:
             tmp_average_fraction_pipe[i] = np.sum(self.boolean_array_visited_pipes[i])/(5*np.sum(self.boolean_array_visibility[i]))
         # print(tmp_average_fraction_pipe)
         self.average_fraction_pipe[current_episode] = np.mean(tmp_average_fraction_pipe)
+
         if save_trajectory:
+
+            matrices_to_be_saved = np.zeros([self.n_agents, self.K_s, self.K_s, self.K_s_pipe, self.K_a])
+            for i in range(self.n_agents):
+                matrices_to_be_saved[i, :] = self.agents_list[i].Q
+            
             np.savez("%s/episode_%d.npz" % (self.output_directory, current_episode),
                      x_traj=self.x_trajectory,
                      y_traj=self.y_trajectory,
@@ -673,7 +655,8 @@ class HiddenPipeEnvironment:
                      vector_fov_starts=self.vector_fov_starts,
                      vector_fov_ends=self.vector_fov_ends,
                      visibility_of_pipe=self.visibility_of_pipe,
-                     boolean_array_visibility=self.boolean_array_visibility[0]
+                     boolean_array_visibility=self.boolean_array_visibility[0],
+                     Q_matrices=matrices_to_be_saved
                      )
 
         # Reset positions and velocities of the agents accordingly
