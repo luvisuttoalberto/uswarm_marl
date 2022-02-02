@@ -6,6 +6,7 @@ from numpy.linalg import norm as euclidean_norm
 import random
 from time import time
 
+
 class HiddenPipeEnvironment:
     """
     Class that defines the whole environment.
@@ -182,7 +183,7 @@ class HiddenPipeEnvironment:
 
         # self.flag_benchmark_swarm_check = flag_benchmark_swarm_check
 
-    def add_agent(self, x, y, v, Q = None):
+    def add_agent(self, x, y, v, Q=None):
         """
         Adds a new agent to the environment, given its position and velocity; updates related parameters and data
         structures.
@@ -226,9 +227,10 @@ class HiddenPipeEnvironment:
         """
         cnt = 0
         cum_sum = np.zeros(self.agents_list[index].v.shape)
-        for i in [x for x in range(self.n_agents) if
-                  x != index and self.compute_distance(index, x) < self.R and self.agents_list[
-                      index].is_point_in_field_of_view(self.agents_list[x].p) and self.agents_list[x].flag_is_agent_seeing_the_pipe]:
+        for i in [x for x in range(self.n_agents) if x != index and
+                                                     self.compute_distance(index, x) < self.R and
+                                                     self.agents_list[index].is_point_in_field_of_view(self.agents_list[x].p) and
+                                                     self.agents_list[x].flag_is_agent_seeing_the_pipe]:
             if self.agents_list[i].s[2] == 1:
                 cnt += self.weight_smart_agent
                 cum_sum += self.weight_smart_agent * self.agents_list[i].v
@@ -647,7 +649,11 @@ class HiddenPipeEnvironment:
             matrices_to_be_saved = np.zeros([self.n_agents, self.K_s, self.K_s, self.K_s_pipe, self.K_a])
             for i in range(self.n_agents):
                 matrices_to_be_saved[i, :] = self.agents_list[i].Q
-            
+
+            global_state_action_rate_visits = np.zeros([self.n_agents, len(self.possible_states), len(self.possible_states), self.K_s_pipe, self.K_a])
+            for i in range(self.n_agents):
+                global_state_action_rate_visits[i] = self.agents_list[i].state_action_rate_visits
+
             np.savez("%s/episode_%d.npz" % (self.output_directory, current_episode),
                      x_traj=self.x_trajectory,
                      y_traj=self.y_trajectory,
@@ -656,7 +662,8 @@ class HiddenPipeEnvironment:
                      vector_fov_ends=self.vector_fov_ends,
                      visibility_of_pipe=self.visibility_of_pipe,
                      boolean_array_visibility=self.boolean_array_visibility[0],
-                     Q_matrices=matrices_to_be_saved
+                     Q_matrices=matrices_to_be_saved,
+                     global_state_action_rate_visits=global_state_action_rate_visits
                      )
 
         # Reset positions and velocities of the agents accordingly
