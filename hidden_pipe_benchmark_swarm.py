@@ -97,12 +97,6 @@ class HiddenPipeEnvironmentBenchmark:
 
         self.reset_type = reset_type
 
-        # Pre-computing the values of the learning and exploration rate for each timestep
-        # self.learning_rate_vector = np.empty(self.n_episodes)
-
-        # self.maximum_reward = 1/(1-self.gamma)
-        # self.maximum_reward = 8000
-
         # Auxiliary value to avoid multiple computation of the denominator while computing the distance from the pipe
         # (always the same)
         self.auxiliary_den_dist_line = sqrt(self.slope_pipe ** 2 + 1)
@@ -116,9 +110,6 @@ class HiddenPipeEnvironmentBenchmark:
         self.vector_fov_ends = np.zeros((self.n_agents,))
         self.visibility_of_pipe = np.zeros((self.n_agents,), dtype=bool)
         self.boolean_array_visibility = np.empty((self.n_agents, int(1/(1-self.gamma))))
-
-        # Reward vector storing rewards of a single episode, for each agent
-        # self.rewards = np.zeros((self.n_agents,))
 
         # Reward vector storing the cumulative reward of each episode, summed across all timesteps and all agents
         # self.epochs_rewards = np.zeros(self.n_episodes)
@@ -138,8 +129,6 @@ class HiddenPipeEnvironmentBenchmark:
         # Vector used to store the polar order parameter (alignment of agents across each episode)
         # self.polar_order_param = np.zeros(self.n_episodes)
         self.number_of_steps_per_episode = np.zeros(self.n_episodes, dtype=int)
-
-        # self.done = False
 
         self.average_highest_reward = np.zeros(self.n_episodes)
 
@@ -386,7 +375,8 @@ class HiddenPipeEnvironmentBenchmark:
         """
         Simulates a whole episode.
         """
-        self.number_of_steps_per_episode[current_episode] = int(np.random.geometric(1 - self.gamma))
+        # self.number_of_steps_per_episode[current_episode] = int(np.random.geometric(1 - self.gamma))
+        self.number_of_steps_per_episode[current_episode] = 1/(1-self.gamma)
 
         if self.reset_type == "line":
             number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2 + floor(2*self.n_agents + 1)
