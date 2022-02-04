@@ -69,7 +69,7 @@ class Agent:
 
         # Initialization of the agent's state to default values; will actually be updated before starting the
         # simulation
-        self.s = [0.0, 0.0, 1]
+        self.s = [0.0, 0.0, 0]
         self.old_s = [0.0, 0.0, 0]
 
         #       Store the reward received by the agent. Needed only for plots
@@ -100,6 +100,21 @@ class Agent:
         self.vector_neighbors = np.array([1, 0])
 
         self.state_action_rate_visits = np.zeros([len(self.possible_states), len(self.possible_states), k_s_pipe, k_a])
+
+        self.RED_WEIGHT = 0.8
+        self.YELLOW_WEIGHT = 0.4
+        self.GREEN_WEIGHT = 0.2
+        self.NO_WEIGHT = 0
+
+        self.agent_weight = self.NO_WEIGHT
+
+    # def update_agent_weight(self):
+    #     if self.s[2] == 0:
+    #         self.agent_weight = self.RED_WEIGHT
+    #     elif self.s[2] in [1,2]:
+    #         self.agent_weight = self.YELLOW_WEIGHT
+    #     else:
+    #         self.agent_weight = self.NO_WEIGHT
 
     def update_fov_parameters(self):
         """
