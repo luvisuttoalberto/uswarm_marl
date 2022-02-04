@@ -137,6 +137,7 @@ class HiddenPipeEnvironment:
         self.vector_fov_starts = np.zeros((self.n_agents,))
         self.vector_fov_ends = np.zeros((self.n_agents,))
         self.visibility_of_pipe = np.zeros((self.n_agents,), dtype=bool)
+        self.colors_agents = np.zeros((self.n_agents,))
         self.boolean_array_visibility = np.empty((self.n_agents, int(1/(1-self.gamma))))
 
         # Reward vector storing rewards of a single episode, for each agent
@@ -224,6 +225,7 @@ class HiddenPipeEnvironment:
         self.vector_fov_ends = np.zeros((self.n_agents,))
         self.vector_fov_starts = np.zeros((self.n_agents,))
         self.visibility_of_pipe = np.zeros((self.n_agents,), dtype=bool)
+        self.colors_agents = np.zeros((self.n_agents,))
         self.boolean_array_visibility = np.empty((self.n_agents, int(1 / (1 - self.gamma))))
 
     def compute_distance(self, i, j):
@@ -536,6 +538,7 @@ class HiddenPipeEnvironment:
             self.vector_fov_starts[i][t] = self.agents_list[i].vector_start_fov
             self.vector_fov_ends[i][t] = self.agents_list[i].vector_end_fov
             self.visibility_of_pipe[i][t] = self.agents_list[i].flag_is_agent_seeing_the_pipe
+            self.colors_agents[i][t] = self.agents_list[i].agent_weight
             # agent_state_indexes = self.agents_list[i].obtain_state_indexes(self.agents_list[i].s)
             # self.frequency_state_reward_region[i][agent_state_indexes[2]] += 1
             # self.frequency_state_neighbours[i, agent_state_indexes[0]] += 1
@@ -679,6 +682,7 @@ class HiddenPipeEnvironment:
             self.vector_fov_starts = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
             self.vector_fov_ends = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
             self.visibility_of_pipe = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]), dtype=bool)
+            self.colors_agents = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             # self.rewards = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             # self.frequency_state_reward_region = np.zeros((self.n_agents, self.K_s_pipe))
             # self.frequency_state_neighbours = np.zeros((self.n_agents, self.K_s))
@@ -725,6 +729,7 @@ class HiddenPipeEnvironment:
                      vector_fov_starts=self.vector_fov_starts,
                      vector_fov_ends=self.vector_fov_ends,
                      visibility_of_pipe=self.visibility_of_pipe,
+                     colors_agent=self.colors_agents,
                      boolean_array_visibility=self.boolean_array_visibility[0],
                      Q_matrices=matrices_to_be_saved,
                      global_state_action_rate_visits=global_state_action_rate_visits

@@ -118,7 +118,7 @@ def plot_average_fraction_visited_pipes(average_fraction_pipe):
     plt.show()
 
 def plot_Q_matrix_no_neigh_version(state_reward_index, n_agents, Q, k_s):
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     action_ticks = np.arange(7)
     action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0, "%.1f" % (math.pi / 16), "%.1f" % (2 * math.pi / 16), "%.1f" % (3 * math.pi / 16)]
@@ -160,7 +160,7 @@ def plot_Q_matrix_pipe(state_neighbours_index, state_reward_index, n_agents, Q, 
         Plots the Q matrices of each agent, given a "pipe" state index.
         In this way we can better visualize the values of the state-action matrix in and out of the reward region.
         """
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     action_ticks = np.arange(7)
     action_labels = ["%.1f" % (-3*math.pi/16), "%.1f" % (-2*math.pi/16), "%.1f" % (-math.pi/16), 0, "%.1f" % (math.pi/16), "%.1f" % (2*math.pi/16), "%.1f" % (3*math.pi/16)]
@@ -210,7 +210,7 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
         """
     action_ticks = np.arange(7)
     state_ticks = np.arange(k_s)
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0,
                      "%.1f" % (math.pi / 16), "%.1f" % (2 * math.pi / 16), "%.1f" % (3 * math.pi / 16)]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
@@ -251,7 +251,7 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
 def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
     X = np.arange(k_s)
     Y = np.arange(k_s)
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
 
     for j in range(k_s_pipe):
         fig = plt.figure(figsize=(25, 25))
@@ -280,7 +280,7 @@ def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
 def plot_policy_no_neigh(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
     X = np.arange(k_s)
     Y = np.arange(k_s_pipe)
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     fig = plt.figure(figsize=(25, 25))
     axes = fig.add_subplot(1, 1, 1)
 
@@ -305,7 +305,7 @@ def plot_policy_no_neigh(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index)
     plt.show()
 
 def plot_visit_matrices_pipe(state_neighbours_index, state_reward_index, n_agents, V, k_s):
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     action_ticks = np.arange(7)
     action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0,
@@ -351,7 +351,7 @@ def plot_visit_matrices_pipe(state_neighbours_index, state_reward_index, n_agent
 def plot_visit_matrices_neigh(state_pipe_index, state_reward_index, n_agents, V, k_s):
     action_ticks = np.arange(7)
     state_ticks = np.arange(k_s)
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost"]
+    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     action_labels = ["%.1f" % (-3 * math.pi / 16), "%.1f" % (-2 * math.pi / 16), "%.1f" % (-math.pi / 16), 0,
                      "%.1f" % (math.pi / 16), "%.1f" % (2 * math.pi / 16), "%.1f" % (3 * math.pi / 16)]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
@@ -361,9 +361,9 @@ def plot_visit_matrices_neigh(state_pipe_index, state_reward_index, n_agents, V,
             axes[i].set_title("Agent {}".format(i))
             axes[i].set_xlabel("Actions (rotation applied)")
             axes[i].set_ylabel("Neighbors states")
-            image = axes[i].imshow(V[i, :, state_pipe_index, state_reward_index])
-            maximums = np.argmax(V[i, :, state_pipe_index, state_reward_index], axis=1)
-            for j in range(k_s):
+            image = axes[i].imshow(V[i, :-1, state_pipe_index, state_reward_index])
+            maximums = np.argmax(V[i, :-1, state_pipe_index, state_reward_index], axis=1)
+            for j in range(k_s-1):
                 axes[i].text(maximums[j], j, 'x', ha="center", va="center", color="white", fontsize='small')
             fig.colorbar(image, ax=axes[i])
             axes[i].set_xticks(action_ticks)
@@ -393,9 +393,9 @@ def plot_Q_matrices(k_s_pipe, n_agents, Q, k_s):
     Auxiliary method to plot the Q matrices in a more compact way.
     """
     for i in range(k_s_pipe):
-        for j in [16, 32]:
+        for j in [ 16, 32]:
             plot_Q_matrix_pipe(j, i, n_agents, Q, k_s)
-        for j in [15, 16, 17]:
+        for j in [ 16, 17]:
             plot_Q_matrix_neigh(j, i, n_agents, Q, k_s)
 
 def plot_visit_matrices(k_s_pipe, n_agents, V, k_s):
@@ -405,7 +405,7 @@ def plot_visit_matrices(k_s_pipe, n_agents, V, k_s):
     for i in range(k_s_pipe):
         for j in [16, 32]:
             plot_visit_matrices_pipe(j, i, n_agents, V, k_s)
-        for j in [15, 16, 17]:
+        for j in [16, 17]:
             plot_visit_matrices_neigh(j, i, n_agents, V, k_s)
 
 def generate_gif_initial(title, data, directory, flag_single_agent):
@@ -418,6 +418,19 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
     vector_fov_ends = data["vector_fov_ends"]
     orientation = data["orientation"]
     visibility_of_pipe = data["visibility_of_pipe"]
+    colors_agent = data["colors_agent"]
+    color_agent = np.empty((n_agents, T), dtype=str)
+
+    for i in range(n_agents):
+        for j in range(T):
+            if colors_agent[i][j] == 0:
+                color_agent[i][j] = 'b'
+            elif colors_agent[i][j] == 0.2:
+                color_agent[i][j] = 'g'
+            elif colors_agent[i][j] == 0.4:
+                color_agent[i][j] = 'y'
+            else:
+                color_agent[i][j] = 'r'
 
     gif_time = time()
     print("Generating initial trajectory gif.....")
@@ -448,7 +461,8 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
         for j in range(n_agents):
             plt.plot(x_traj[j][max(0, i - 50):i + 1], y_traj[j][max(0, i - 50):i + 1], colours[j],
                      label="Fish n: %d" % (j + 1))
-            plt.plot(x_traj[j][i], y_traj[j][i], colours[j], marker=(3, 0, orientation[j][i]), markersize=15)
+            # plt.plot(x_traj[j][i], y_traj[j][i], colours[j], marker=(3, 0, orientation[j][i]), markersize=15)
+            plt.plot(x_traj[j][i], y_traj[j][i], color_agent[j][i], marker=(3, 0, orientation[j][i]), markersize=15)
             if visibility_of_pipe[j][i]:
                 color = 'k'
             else:
