@@ -34,11 +34,11 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.9995
+gamma = 0.99
 
 # Number of episodes
-n_episodes = 3200*5
-# n_episodes = 20000
+# n_episodes = 3200*5
+n_episodes = 20000
 
 # T_star epsilon (Timestep in the learning at which the exploration rate starts to decrease)
 # Can be different from t_star_lr
@@ -73,8 +73,8 @@ std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 # distance_from_pipe = R*np.sin(phi/2)
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
-reset_type = "area"
-# reset_type = "line"
+# reset_type = "area"
+reset_type = "line"
 
 pipe_recognition_probability = 0.95
 
@@ -142,7 +142,7 @@ for j in [4]:
     else:
         AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_constant_recognition_extended/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, j)
+    output_directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, j)
     print(output_directory)
     pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
