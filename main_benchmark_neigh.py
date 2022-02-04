@@ -1,13 +1,16 @@
 import pathlib
 import numpy as np
 from math import pi
-from hidden_pipe_benchmark_swarm import HiddenPipeEnvironmentBenchmark
+import hidden_pipe_environment
 from warnings import filterwarnings
 
 filterwarnings("ignore", category=RuntimeWarning)
 
 # Number of agents
 # n_agents = 16
+
+# Initial exploration rate
+epsilon_0 = 0
 
 # Maximum turning angle of the agent per timestep
 theta_max = 3 * pi / 16
@@ -31,10 +34,23 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.9995
+gamma = 0.999
 
 # Number of episodes
 n_episodes = 1000
+
+# T_star epsilon (Timestep in the learning at which the exploration rate starts to decrease)
+# Can be different from t_star_lr
+t_star_epsilon = 600*10
+
+# T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
+# Can be different from t_star_epsilon
+t_star_lr = 6000
+
+t_stop = 0
+
+# Initial learning rate
+alpha_0 = 0
 
 # Parameters describing the pipe to be followed (in this case a straight line, pointing to the right)
 slope_pipe = 0
@@ -43,11 +59,17 @@ offset_pipe = 0
 # Mean and standard deviation for the gaussian noise on the position
 mean_position_noise = 0
 std_dev_position_noise = 0.01
+# std_dev_position_noise = v0/8
+# std_dev_position_noise = 0
 
 # Mean and standard deviation for the gaussian noise on the velocity angle
 mean_velocity_noise = 0
 # Computed to assure that the noise on the velocity won't cause the loss of a neighbour in less than 10 timesteps
 std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
+# std_dev_velocity_noise = 0
+
+# Distance from the pipe that defines the region in which the agent receives a reward
+# distance_from_pipe = R*np.sin(phi/2)
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
 reset_type = "area"
@@ -67,22 +89,33 @@ prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
+weight_smart_agent = 0.8
+
 visibility_pipe = 0.6
 
+# reward_follow_smart_agent = 0.8
+
 forgetting_factor_neigh = 0.9
+
+prob_end_lost_state = 0
 
 n_agents = 16
 
 print(n_agents)
-AF = HiddenPipeEnvironmentBenchmark(
+AF = hidden_pipe_environment.HiddenPipeEnvironment(
     theta_max,
     v0,
     R,
     k_s,
     k_s_pipe,
     k_a,
+    alpha_0,
     phi,
     n_episodes,
+    t_star_epsilon,
+    t_star_lr,
+    t_stop,
+    epsilon_0,
     slope_pipe,
     offset_pipe,
     mean_velocity_noise,
@@ -96,13 +129,13 @@ AF = HiddenPipeEnvironmentBenchmark(
     std_dev_measure_pipe,
     prob_end_surge,
     forgetting_factor,
+    weight_smart_agent,
     visibility_pipe,
-    pipe_recognition_probability
+    pipe_recognition_probability,
+    prob_end_lost_state
 )
 
-epsilon_0 = 0.3
-
-input_directory = "./data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents" % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
+input_directory = "./data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s/%d_agents" % (visibility_pipe, gamma, reset_type, n_agents)
 
 data_for_plots = np.load('%s/data_for_plots.npz' % input_directory)
 
@@ -115,7 +148,7 @@ if reset_type == "line":
 else:
     AF.reset_position_and_velocities_in_area()
 
-output_directory = './data_benchmark_swarm/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_correct/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
+output_directory = './data_benchmark_neigh/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s/%d_agents' % (visibility_pipe, gamma, reset_type, n_agents)
 print(output_directory)
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
