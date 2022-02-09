@@ -393,9 +393,9 @@ def plot_Q_matrices(k_s_pipe, n_agents, Q, k_s):
     Auxiliary method to plot the Q matrices in a more compact way.
     """
     for i in range(k_s_pipe):
-        for j in [ 16, 32]:
+        for j in [15, 16, 32]:
             plot_Q_matrix_pipe(j, i, n_agents, Q, k_s)
-        for j in [ 16, 17]:
+        for j in [15, 16, 17]:
             plot_Q_matrix_neigh(j, i, n_agents, Q, k_s)
 
 def plot_visit_matrices(k_s_pipe, n_agents, V, k_s):
@@ -428,7 +428,7 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
             elif colors_agent[i][j] == 0.2:
                 color_agent[i][j] = 'g'
             elif colors_agent[i][j] == 0.4:
-                color_agent[i][j] = 'y'
+                color_agent[i][j] = 'c'
             else:
                 color_agent[i][j] = 'r'
 
@@ -488,6 +488,20 @@ def generate_gif_final(title, data, directory, flag_single_agent):
     vector_fov_ends = data["vector_fov_ends"]
     orientation = data["orientation"]
     visibility_of_pipe = data["visibility_of_pipe"]
+    colors_agent = data["colors_agent"]
+    color_agent = np.empty((n_agents, T), dtype=str)
+
+    for i in range(n_agents):
+        for j in range(T):
+            if colors_agent[i][j] == 0:
+                color_agent[i][j] = 'b'
+            elif colors_agent[i][j] == 0.2:
+                color_agent[i][j] = 'g'
+            elif colors_agent[i][j] == 0.4:
+                color_agent[i][j] = 'c'
+            else:
+                color_agent[i][j] = 'r'
+
     colours = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9',
                'b', 'g', 'r', 'c', 'm', 'y', 'orange', 'grey',
                'brown', 'salmon', 'sienna', 'aquamarine', 'darkviolet', 'steelblue', 'darkgoldenrod', 'darkgreen',
@@ -518,7 +532,8 @@ def generate_gif_final(title, data, directory, flag_single_agent):
         for j in range(n_agents):
             plt.plot(x_traj[j][max(start_point_final, i - 50):i + 1], y_traj[j][max(start_point_final, i - 50):i + 1],
                      colours[j], label="Fish n: %d" % (j + 1))
-            plt.plot(x_traj[j][i], y_traj[j][i], colours[j], marker=(3, 0, orientation[j][i]), markersize=15)
+            # plt.plot(x_traj[j][i], y_traj[j][i], colours[j], marker=(3, 0, orientation[j][i]), markersize=15)
+            plt.plot(x_traj[j][i], y_traj[j][i], color_agent[j][i], marker=(3, 0, orientation[j][i]), markersize=15)
             if visibility_of_pipe[j][i]:
                 color = 'k'
             else:

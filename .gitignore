@@ -15,3 +15,6 @@ __pycache__/
 /data_baseline_new_reward/
 /data_benchmark_swarm/
 /data_benchmark_neigh/
+/data_constant_recognition_fixed/
+/data_constant_recognition_extended/
+/data_constant_recognition_saving_data/

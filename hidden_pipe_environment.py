@@ -631,7 +631,7 @@ class HiddenPipeEnvironment:
 
         random.shuffle(order)
         for i in range(self.n_agents):
-            self.agents_list[i].set_position(order[i] * 2, 0)
+            self.agents_list[i].set_position(order[i] * 1, 0)
             random_velocity = np.empty(2)
             random_velocity[0] = random.uniform(0, 1)
             random_velocity[1] = random.uniform(-1, 1)
@@ -648,7 +648,7 @@ class HiddenPipeEnvironment:
         else:
             self.number_of_steps_per_episode[current_episode] = int(np.random.geometric(1 - self.gamma))
         if self.reset_type == "line":
-            number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2 + floor(2*self.n_agents + 1)
+            number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2 + floor(1*self.n_agents + 1)
         else:
             number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2
 

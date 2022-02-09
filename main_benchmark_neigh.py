@@ -34,7 +34,7 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.999
+gamma = 0.9995
 
 # Number of episodes
 n_episodes = 1000
@@ -72,8 +72,8 @@ std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 # distance_from_pipe = R*np.sin(phi/2)
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
-reset_type = "area"
-# reset_type = "line"
+# reset_type = "area"
+reset_type = "line"
 
 pipe_recognition_probability = 0.95
 
@@ -99,7 +99,7 @@ forgetting_factor_neigh = 0.9
 
 prob_end_lost_state = 0
 
-n_agents = 16
+n_agents = 4
 
 print(n_agents)
 AF = hidden_pipe_environment.HiddenPipeEnvironment(
@@ -135,7 +135,7 @@ AF = hidden_pipe_environment.HiddenPipeEnvironment(
     prob_end_lost_state
 )
 
-input_directory = "./data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s/%d_agents" % (visibility_pipe, gamma, reset_type, n_agents)
+input_directory = "./data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_longer/%d_agents" % (visibility_pipe, gamma, reset_type, n_agents)
 
 data_for_plots = np.load('%s/data_for_plots.npz' % input_directory)
 
@@ -148,7 +148,7 @@ if reset_type == "line":
 else:
     AF.reset_position_and_velocities_in_area()
 
-output_directory = './data_benchmark_neigh/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s/%d_agents' % (visibility_pipe, gamma, reset_type, n_agents)
+output_directory = './data_benchmark_neigh/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_extended/%d_agents' % (visibility_pipe, gamma, reset_type, n_agents)
 print(output_directory)
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
