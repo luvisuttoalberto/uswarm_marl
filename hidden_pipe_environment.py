@@ -201,32 +201,14 @@ class HiddenPipeEnvironment:
 
     def compute_distance(self, i, j):
         """
-        Computes the Euclidean distance between agent i and j.
+        Computes the Euclidean distance between agents i and j.
         """
         return euclidean_norm(self.agents_list[i].p - self.agents_list[j].p)
 
-    # def compute_average_velocity_weighted(self, index):
-    #     """
-    #     Computes the average velocity across the neighbours of agent "index"
-    #     """
-    #     cnt = 0
-    #     cum_sum = np.zeros(self.agents_list[index].v.shape)
-    #     for i in [x for x in range(self.n_agents) if x != index and
-    #                                                  self.compute_distance(index, x) < self.R and
-    #                                                  self.agents_list[index].is_point_in_field_of_view(self.agents_list[x].p) and
-    #                                                  self.agents_list[x].flag_is_agent_seeing_the_pipe]:
-    #         if self.agents_list[i].s[2] == self.STATE_SEE:
-    #             cnt += self.weight_smart_agent
-    #             cum_sum += self.weight_smart_agent * self.agents_list[i].v
-    #         else:
-    #             cnt += 1-self.weight_smart_agent
-    #             cum_sum += (1-self.weight_smart_agent) * self.agents_list[i].v
-    #     if cnt == 0:  # there are no neighbours
-    #         return cum_sum  # will be a vector of zeros
-    #     else:
-    #         return cum_sum / cnt
-
     def update_agents_weight(self, index):
+        """
+        Updates the weight of agent "index".
+        """
         if self.agents_list[index].s[2] == 0:
             self.agents_list[index].agent_weight = self.RED_WEIGHT
             return
@@ -237,15 +219,12 @@ class HiddenPipeEnvironment:
             for i in range(self.n_agents):
                 if i != index and self.agents_list[i].agent_weight != self.NO_WEIGHT and self.compute_distance(index, i) < self.R and self.agents_list[index].is_point_in_field_of_view(self.agents_list[i].p):
                     self.agents_list[index].agent_weight = self.GREEN_WEIGHT
-                    # print("Agent %d seeing agent %d" % (index, i))
                     return
             self.agents_list[index].agent_weight = self.NO_WEIGHT
 
-
-
-    def compute_average_velocity_weighted_extended(self, index):
+    def compute_average_velocity_weighted(self, index):
         """
-        Computes the average velocity across the neighbours of agent "index"
+        Computes the weighted average velocity across the neighbours of agent "index"
         """
         cnt = 0
         cum_sum = np.zeros(self.agents_list[index].v.shape)
@@ -255,32 +234,7 @@ class HiddenPipeEnvironment:
             cnt += self.agents_list[i].agent_weight
             cum_sum += self.agents_list[i].agent_weight * self.agents_list[i].v
 
-            # if self.agents_list[i].s[2] == self.STATE_SEE:
-            #     cnt += self.weight_smart_agent
-            #     cum_sum += self.weight_smart_agent * self.agents_list[i].v
-            # else:
-            #     cnt += 1-self.weight_smart_agent
-            #     cum_sum += (1-self.weight_smart_agent) * self.agents_list[i].v
-        if cnt == 0:  # there are no neighbours
-            return cum_sum  # will be a vector of zeros
-        else:
-            # if not self.agents_list[index].flag_is_agent_seeing_the_pipe:
-            #     self.agents_list[index].agent_weight = self.GREEN_WEIGHT
-            return cum_sum / cnt
-
-
-    def compute_average_velocity(self, index):
-        """
-        Computes the average velocity across the neighbours of agent "index"
-        """
-        cnt = 0
-        cum_sum = np.zeros(self.agents_list[index].v.shape)
-        for i in [x for x in range(self.n_agents) if
-                  x != index and self.compute_distance(index, x) < self.R and self.agents_list[
-                      index].is_point_in_field_of_view(self.agents_list[x].p)]:
-            cnt += 1
-            cum_sum += self.agents_list[i].v
-        if cnt == 0:  # there are no neighbours
+        if cnt == 0:  # there are no informed neighbours
             return cum_sum  # will be a vector of zeros
         else:
             return cum_sum / cnt
@@ -304,79 +258,33 @@ class HiddenPipeEnvironment:
         return [self.possible_states[index_neighbours], self.possible_states[index_pipe]]
 
     def compute_oriented_distance_from_pipe(self, position):
-        # computed as the distance of a point from a line (with sign)
+        """
+        Computes the distance of a point (the agent) from a line (the pipe) 
+        """
         return (position[1] - self.slope_pipe * position[0] - self.offset_pipe) / self.auxiliary_den_dist_line
 
     def is_agent_seeing_the_pipe(self, index):
+        """
+        Checks if the agent is seeing a visible section of the pipe
+        """
         agent = self.agents_list[index]
         if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5):
             return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_start_fov) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_end_fov) <= 0
         else:
             return False
-    # def is_agent_seeing_the_pipe(self, index):
-    #     agent = self.agents_list[index]
-    #     if -self.R < agent.oriented_distance_from_pipe < self.R \
-    #             and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility, 5):
-    #         return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
-    #             agent.p + agent.vector_start_fov) <= 0 \
-    #                or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
-    #             agent.p + agent.vector_end_fov) <= 0
-    #     else:
-    #         return False
-    # def is_agent_seeing_the_pipe(self, index):
-    #     agent = self.agents_list[index]
-    #     if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1)\
-    #             and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[index], 5, self.flag_spatially_uncorrelated_case):
-    #         return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
-    #             agent.p + agent.vector_start_fov) <= 0 \
-    #                or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
-    #             agent.p + agent.vector_end_fov) <= 0
-    #     else:
-    #         return False
 
-    # def obtain_relative_position_state(self, index):
-    #     # Pipe state computation
-    #     agent = self.agents_list[index]
-    #     if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
-    #         if -0.5 < agent.oriented_distance_from_pipe < 0.5:
-    #             state_relative_position = 1
-    #         elif agent.oriented_distance_from_pipe < -0.5:
-    #             state_relative_position = 4
-    #         else:
-    #             state_relative_position = 5
-    #     elif agent.s[2] in [1, 4, 5]:
-    #         state_relative_position = 3
-    #     elif agent.s[2] == 3:
-    #         if np.random.binomial(1, self.prob_end_surge):
-    #             if agent.last_oriented_distance_from_pipe > 0:
-    #                 state_relative_position = 0
-    #             else:
-    #                 state_relative_position = 2
-    #         else:
-    #             state_relative_position = agent.s[2]
-    #     else:
-    #         if np.random.binomial(1, self.prob_no_switch_state):
-    #             state_relative_position = agent.s[2]
-    #         else:
-    #             if agent.s[2] == 0:
-    #                 state_relative_position = 2
-    #             else:
-    #                 state_relative_position = 0
-    #
-    #     return state_relative_position
-
-    def obtain_relative_position_state_new(self, index):
+    def obtain_relative_position_state(self, index):
+        """
+        Obtains the relative position of agent "index"
+        """
         agent = self.agents_list[index]
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -0.5 < agent.oriented_distance_from_pipe < 0.5:
                 state_relative_position = self.STATE_SEE
-                # agent.agent_weight = self.RED_WEIGHT
             elif agent.oriented_distance_from_pipe < -0.5:
                 state_relative_position = self.STATE_CLOSE_RIGHT
-                # agent.agent_weight = self.YELLOW_WEIGHT
             else:
                 state_relative_position = self.STATE_CLOSE_LEFT
-                # agent.agent_weight = self.YELLOW_WEIGHT
         elif agent.s[2] in [self.STATE_SEE, self.STATE_CLOSE_RIGHT, self.STATE_CLOSE_LEFT]:
             state_relative_position = self.STATE_JUST_LOST
         elif agent.s[2] == self.STATE_JUST_LOST:
@@ -394,8 +302,7 @@ class HiddenPipeEnvironment:
 
     def obtain_orientations_states(self, index):
         agent = self.agents_list[index]
-        average_velocity = self.compute_average_velocity_weighted_extended(index)
-        # average_velocity = self.compute_average_velocity(index)
+        average_velocity = self.compute_average_velocity_weighted(index)
 
         normalized_average_velocity = euclidean_norm(average_velocity)
 
@@ -551,7 +458,7 @@ class HiddenPipeEnvironment:
 
         # State update
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state(i))
 
         for i in range(self.n_agents):
             self.update_agents_weight(i)
@@ -637,7 +544,7 @@ class HiddenPipeEnvironment:
                 self.boolean_array_visited_pipes[i][floor(self.agents_list[i].p[0])] = 1
 
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state(i))
 
         for i in range(self.n_agents):
             self.update_agents_weight(i)
