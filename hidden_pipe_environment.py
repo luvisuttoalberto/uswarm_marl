@@ -309,6 +309,7 @@ class HiddenPipeEnvironment:
         # Compute a rotated v of pi/2; needed for computation of the state
         rotated_v = np.dot(compute_rotation_matrix(pi / 2), agent.v)
 
+        # Compute neighbors state
         if normalized_average_velocity == 0:  # there are no neighbours
             state_neighbours = self.no_neighbours_state
         else:  # there are neighbours
@@ -316,7 +317,8 @@ class HiddenPipeEnvironment:
                 state_neighbours = np.arccos(np.dot(average_velocity, agent.v) / normalized_average_velocity)
             else:
                 state_neighbours = - np.arccos(np.dot(average_velocity, agent.v) / normalized_average_velocity)
-
+        
+        # Compute pipe state
         if np.dot(agent.vector_pipe, rotated_v) > 0:
             state_pipe = np.arccos(np.dot(agent.vector_pipe, agent.v) / euclidean_norm(agent.vector_pipe))
         else:
@@ -324,75 +326,6 @@ class HiddenPipeEnvironment:
 
         state = np.array([state_neighbours, state_pipe])
         return self.discretize_state(state)
-
-    # def obtain_agent_state(self, index):
-    #
-    #     """
-    #     Obtains the state of agent "index".
-    #     """
-    #     # Pipe state computation
-    #     agent = self.agents_list[index]
-    #     state_relative_position = -1
-    #     if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
-    #         if -1 < agent.oriented_distance_from_pipe < 1:
-    #             state_relative_position = 1
-    #         elif agent.oriented_distance_from_pipe < -1:
-    #             state_relative_position = 4
-    #         else:
-    #             state_relative_position = 5
-    #     elif agent.s[2] == 1:
-    #         state_relative_position = 3
-    #     elif agent.s[2] == 3:
-    #         if np.random.binomial(1, self.prob_end_surge):
-    #             if agent.oriented_distance_from_pipe > 0:
-    #                 state_relative_position = 0
-    #             else:
-    #                 state_relative_position = 2
-    #         else:
-    #             state_relative_position = agent.s[2]
-    #     else:
-    #         if np.random.binomial(1, self.prob_no_switch_state):
-    #             state_relative_position = agent.s[2]
-    #         else:
-    #             if agent.s[2] == 0:
-    #                 state_relative_position = 2
-    #             else:
-    #                 state_relative_position = 0
-    #
-    #     if state_relative_position == -1:
-    #         print("ERRORE: previous s = ", agent.s[2])
-    #     # elif self.agents_list[index].flag_agent_knows_info_on_position_of_pipe:
-    #     #     if self.agents_list[index].oriented_distance_from_pipe > 0:
-    #     #         state_relative_position = 0
-    #     #     else:
-    #     #         state_relative_position = 2
-    #     # else:  # agent knows no info on the pipe
-    #     #     self.agents_list[index].flag_agent_knows_info_on_position_of_pipe = False
-    #     #     state_relative_position = 3
-    #
-    #     # Neighbours state computation: compute the angular difference between the orientation of the agent and
-    #     # the normalized average velocity of its neighbours
-    #     average_velocity = self.compute_average_velocity(index)
-    #     normalized_average_velocity = euclidean_norm(average_velocity)
-    #
-    #     # Compute a rotated v of pi/2; needed for computation of the state
-    #     rotated_v = np.dot(compute_rotation_matrix(pi / 2), agent.v)
-    #
-    #     if normalized_average_velocity == 0:  # there are no neighbours
-    #         state_neighbours = self.no_neighbours_state
-    #     else:  # there are neighbours
-    #         if np.dot(average_velocity, rotated_v) > 0:
-    #             state_neighbours = np.arccos(np.dot(average_velocity, agent.v) / normalized_average_velocity)
-    #         else:
-    #             state_neighbours = - np.arccos(np.dot(average_velocity, agent.v) / normalized_average_velocity)
-    #
-    #     if np.dot(agent.vector_pipe, rotated_v) > 0:
-    #         state_pipe = np.arccos(np.dot(agent.vector_pipe, agent.v) / euclidean_norm(agent.vector_pipe))
-    #     else:
-    #         state_pipe = -np.arccos(np.dot(agent.vector_pipe, agent.v) / euclidean_norm(agent.vector_pipe))
-    #
-    #     state = np.array([state_neighbours, state_pipe, state_relative_position])
-    #     return self.discretize_state(state)
 
     def obtain_reward_of_agent(self, index):
         """
