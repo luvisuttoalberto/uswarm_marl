@@ -34,7 +34,6 @@ class HiddenPipeEnvironment:
                  std_dev_position_noise,
                  reset_type,
                  gamma,
-                 prob_no_switch_state,
                  flag_spatially_uncorrelated_case,
                  std_dev_measure_pipe,
                  prob_end_surge,
@@ -149,8 +148,6 @@ class HiddenPipeEnvironment:
 
         # Output directory in which to store data
         self.output_directory = '.'
-
-        self.prob_no_switch_state = prob_no_switch_state
 
         self.std_dev_measure_pipe = std_dev_measure_pipe
 

@@ -80,8 +80,6 @@ pipe_recognition_probability = 0.95
 
 flag_spatially_uncorrelated_case = False
 
-prob_no_switch_state = 0.9
-
 std_dev_measure_pipe = pi/16.
 
 print(std_dev_measure_pipe)
@@ -125,7 +123,6 @@ for k in [3]:
             std_dev_position_noise,
             reset_type,
             gamma,
-            prob_no_switch_state,
             flag_spatially_uncorrelated_case,
             std_dev_measure_pipe,
             prob_end_surge,
