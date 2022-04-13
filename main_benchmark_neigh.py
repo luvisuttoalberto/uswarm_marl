@@ -87,8 +87,6 @@ prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
-weight_smart_agent = 0.8
-
 visibility_pipe = 0.6
 
 # reward_follow_smart_agent = 0.8
@@ -126,7 +124,6 @@ AF = hidden_pipe_environment.HiddenPipeEnvironment(
     std_dev_measure_pipe,
     prob_end_surge,
     forgetting_factor,
-    weight_smart_agent,
     visibility_pipe,
     pipe_recognition_probability,
     prob_end_lost_state

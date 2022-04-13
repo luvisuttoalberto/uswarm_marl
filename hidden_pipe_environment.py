@@ -38,7 +38,6 @@ class HiddenPipeEnvironment:
                  std_dev_measure_pipe,
                  prob_end_surge,
                  forgetting_factor,
-                 weight_smart_agent,
                  visibility_pipe,
                  pipe_recognition_probability,
                  prob_end_lost_state):
@@ -129,9 +128,6 @@ class HiddenPipeEnvironment:
         self.colors_agents = np.zeros((self.n_agents,))
         self.boolean_array_visibility = np.empty((self.n_agents, int(1/(1-self.gamma))))
 
-        # Vector used to store the maximum distance towards the objective reached in each episode.
-        # self.maximum_distance_towards_objective = np.zeros(self.n_episodes)
-
         # Vector used to store the fraction of pipe seen in each episode
         self.fraction_of_seen_sections_of_pipe = np.zeros(self.n_episodes)
 
@@ -140,8 +136,6 @@ class HiddenPipeEnvironment:
 
         # Vector that stores the number of timesteps for each episode
         self.number_of_steps_per_episode = np.zeros(self.n_episodes, dtype=int)
-
-        # self.average_highest_reward = np.zeros(self.n_episodes)
 
         # Vector used to store if an agent has seen a certain section of the pipe or not
         self.boolean_array_visited_pipes = np.empty((self.n_agents, int(1 / 1 - self.gamma)))
@@ -154,8 +148,6 @@ class HiddenPipeEnvironment:
         self.prob_end_surge = prob_end_surge
 
         self.forgetting_factor = forgetting_factor
-
-        self.weight_smart_agent = weight_smart_agent
 
         self.flag_spatially_uncorrelated_case = flag_spatially_uncorrelated_case
 
@@ -211,26 +203,26 @@ class HiddenPipeEnvironment:
         """
         return euclidean_norm(self.agents_list[i].p - self.agents_list[j].p)
 
-    def compute_average_velocity_weighted(self, index):
-        """
-        Computes the average velocity across the neighbours of agent "index"
-        """
-        cnt = 0
-        cum_sum = np.zeros(self.agents_list[index].v.shape)
-        for i in [x for x in range(self.n_agents) if x != index and
-                                                     self.compute_distance(index, x) < self.R and
-                                                     self.agents_list[index].is_point_in_field_of_view(self.agents_list[x].p) and
-                                                     self.agents_list[x].flag_is_agent_seeing_the_pipe]:
-            if self.agents_list[i].s[2] == self.STATE_SEE:
-                cnt += self.weight_smart_agent
-                cum_sum += self.weight_smart_agent * self.agents_list[i].v
-            else:
-                cnt += 1-self.weight_smart_agent
-                cum_sum += (1-self.weight_smart_agent) * self.agents_list[i].v
-        if cnt == 0:  # there are no neighbours
-            return cum_sum  # will be a vector of zeros
-        else:
-            return cum_sum / cnt
+    # def compute_average_velocity_weighted(self, index):
+    #     """
+    #     Computes the average velocity across the neighbours of agent "index"
+    #     """
+    #     cnt = 0
+    #     cum_sum = np.zeros(self.agents_list[index].v.shape)
+    #     for i in [x for x in range(self.n_agents) if x != index and
+    #                                                  self.compute_distance(index, x) < self.R and
+    #                                                  self.agents_list[index].is_point_in_field_of_view(self.agents_list[x].p) and
+    #                                                  self.agents_list[x].flag_is_agent_seeing_the_pipe]:
+    #         if self.agents_list[i].s[2] == self.STATE_SEE:
+    #             cnt += self.weight_smart_agent
+    #             cum_sum += self.weight_smart_agent * self.agents_list[i].v
+    #         else:
+    #             cnt += 1-self.weight_smart_agent
+    #             cum_sum += (1-self.weight_smart_agent) * self.agents_list[i].v
+    #     if cnt == 0:  # there are no neighbours
+    #         return cum_sum  # will be a vector of zeros
+    #     else:
+    #         return cum_sum / cnt
 
     def update_agents_weight(self, index):
         if self.agents_list[index].s[2] == 0:

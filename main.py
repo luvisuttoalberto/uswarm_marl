@@ -88,8 +88,6 @@ prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
-weight_smart_agent = 0.8
-
 visibility_pipe = 0.5
 
 # reward_follow_smart_agent = 0.8
@@ -122,7 +120,6 @@ for j in [1,2,4]:
         std_dev_measure_pipe,
         prob_end_surge,
         forgetting_factor,
-        weight_smart_agent,
         visibility_pipe
     )
 
@@ -133,7 +130,7 @@ for j in [1,2,4]:
     else:
         AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_swarming_behavior_6_states/in_line_dep_lr_weight_%.2f_noise_%.2f_visibility_%.2f_t_star_%d/%d_agents' % (weight_smart_agent, std_dev_measure_pipe, visibility_pipe, t_star_lr, j)
+    output_directory = './data_swarming_behavior_6_states/in_line_dep_lr_noise_%.2f_visibility_%.2f_t_star_%d/%d_agents' % (std_dev_measure_pipe, visibility_pipe, t_star_lr, j)
     print(output_directory)
     pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
