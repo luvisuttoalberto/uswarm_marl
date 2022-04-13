@@ -181,7 +181,7 @@ class Agent:
         """
         self.p = self.p + self.v0 * delta_t * self.v + np.random.normal(mean, std_dev, size=2) * delta_t
 
-    def update_relative_position_state(self, state):
+    def update_information_state(self, state):
         self.old_s[2] = self.s[2]
         self.s[2] = state
 
