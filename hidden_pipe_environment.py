@@ -44,6 +44,7 @@ class HiddenPipeEnvironment:
         Constructor of the class.
         """
 
+        # Macros to represent the information states
         self.STATE_SEE = 0
         self.STATE_CLOSE_RIGHT = 1
         self.STATE_CLOSE_LEFT = 2
@@ -142,24 +143,28 @@ class HiddenPipeEnvironment:
         # Output directory in which to store data
         self.output_directory = '.'
 
+        # Standard deviation for the error in the measure of the pipe orientation
         self.std_dev_measure_pipe = std_dev_measure_pipe
 
+        # Probability of moving from state JustLost to state Lost
         self.prob_end_surge = prob_end_surge
 
+        # Forgetting factor for the calculus of the running average over the pipe orientation
         self.forgetting_factor = forgetting_factor
 
+        # Visibility of the pipe (value in [0,1])
         self.visibility_pipe = visibility_pipe
 
+        # Probability of recognition of the pipe if it's in the agent's fov
         self.pipe_recognition_probability = pipe_recognition_probability
 
         self.prob_end_lost_state = prob_end_lost_state
 
+        # Weight values associated to the level of information an agent has on the pipe
         self.RED_WEIGHT = 0.8
         self.YELLOW_WEIGHT = 0.4
         self.GREEN_WEIGHT = 0.2
         self.NO_WEIGHT = 0
-
-        # self.flag_benchmark_swarm_check = flag_benchmark_swarm_check
 
     def add_agent(self, x, y, v, Q=None):
         """
