@@ -55,8 +55,6 @@ reset_type = "area"
 
 pipe_recognition_probability = 0.95
 
-flag_spatially_uncorrelated_case = False
-
 prob_no_switch_state = 0.9
 
 std_dev_measure_pipe = pi/16.
@@ -94,7 +92,6 @@ AF = HiddenPipeEnvironmentBenchmark(
     reset_type,
     gamma,
     prob_no_switch_state,
-    flag_spatially_uncorrelated_case,
     std_dev_measure_pipe,
     prob_end_surge,
     forgetting_factor,

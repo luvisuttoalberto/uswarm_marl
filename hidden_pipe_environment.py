@@ -34,7 +34,6 @@ class HiddenPipeEnvironment:
                  std_dev_position_noise,
                  reset_type,
                  gamma,
-                 flag_spatially_uncorrelated_case,
                  std_dev_measure_pipe,
                  prob_end_surge,
                  forgetting_factor,
@@ -148,8 +147,6 @@ class HiddenPipeEnvironment:
         self.prob_end_surge = prob_end_surge
 
         self.forgetting_factor = forgetting_factor
-
-        self.flag_spatially_uncorrelated_case = flag_spatially_uncorrelated_case
 
         self.visibility_pipe = visibility_pipe
 
@@ -307,7 +304,7 @@ class HiddenPipeEnvironment:
 
     def is_agent_seeing_the_pipe(self, index):
         agent = self.agents_list[index]
-        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5, self.flag_spatially_uncorrelated_case):
+        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5):
             return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_start_fov) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_end_fov) <= 0
         else:
             return False

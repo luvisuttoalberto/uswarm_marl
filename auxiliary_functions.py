@@ -48,8 +48,5 @@ def moving_average(a, n):
     return ret[n - 1:] / n
 
 
-def is_scalar_in_visible_interval(x, array, length_intervals, flag_spatially_uncorrelated_case):
-    if flag_spatially_uncorrelated_case:
-        return True
-    else:
-        return x >= 0 and array[floor(x / length_intervals)]
+def is_scalar_in_visible_interval(x, array, length_intervals):
+    return x >= 0 and array[floor(x / length_intervals)]

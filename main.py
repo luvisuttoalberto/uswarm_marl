@@ -77,9 +77,6 @@ reset_type = "line"
 
 # pipe_recognition_probability = 1
 
-flag_spatially_uncorrelated_case = False
-
-
 std_dev_measure_pipe = pi/16.
 
 print(std_dev_measure_pipe)
@@ -116,7 +113,6 @@ for j in [1,2,4]:
         std_dev_position_noise,
         reset_type,
         gamma,
-        flag_spatially_uncorrelated_case,
         std_dev_measure_pipe,
         prob_end_surge,
         forgetting_factor,
