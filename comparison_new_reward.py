@@ -5,32 +5,37 @@ from math import pi
 
 visibility_pipe = 0.6
 
-gamma = 0.999
+gamma = 0.9999
 
 epsilon_0 = 0.3
 
-reset_type = "line"
+reset_type = "area"
 
-t_star_lr = 12000
+t_star_lr = 24000
 
 # std_dev_measure_pipe = pi/64.
 
+phi=1
+
 # directory = './data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/' % (visibility_pipe, gamma, epsilon_0, reset_type)
 # directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_closer/' % (visibility_pipe, gamma, epsilon_0, reset_type)
-directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/' % (visibility_pipe, gamma, epsilon_0, reset_type)
+# directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/' % (visibility_pipe, gamma, epsilon_0, reset_type)
 # directory = './data_constant_recognition/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_noise_%.2f/' % (visibility_pipe, gamma, epsilon_0, reset_type, std_dev_measure_pipe)
+directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_t_star_%d/' % (visibility_pipe, gamma, reset_type, t_star_lr)
+# directory = './data_new_angle/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_t_star_%d_phi_2/' % (visibility_pipe, gamma, reset_type, t_star_lr)
 
-# data_swarm_6_states_1 = np.load(directory + '%d_agents/data_for_plots.npz' % 1)
-# visited_sections_1 = data_swarm_6_states_1["fraction_of_seen_sections_of_pipe"]
-# average_visited_sections_1 = data_swarm_6_states_1["average_fraction_pipe"]
-# moving_average_sections_1 = moving_average(visited_sections_1, 250)
-# moving_average_average_sections_1 = moving_average(average_visited_sections_1, 250)
-#
-# data_swarm_6_states_2 = np.load(directory + '%d_agents/data_for_plots.npz' % 2)
-# visited_sections_2 = data_swarm_6_states_2["fraction_of_seen_sections_of_pipe"]
-# average_visited_sections_2 = data_swarm_6_states_2["average_fraction_pipe"]
-# moving_average_sections_2 = moving_average(visited_sections_2, 250)
-# moving_average_average_sections_2 = moving_average(average_visited_sections_2, 250)
+
+data_swarm_6_states_1 = np.load(directory + '%d_agents/data_for_plots.npz' % 1)
+visited_sections_1 = data_swarm_6_states_1["fraction_of_seen_sections_of_pipe"]
+average_visited_sections_1 = data_swarm_6_states_1["average_fraction_pipe"]
+moving_average_sections_1 = moving_average(visited_sections_1, 250)
+moving_average_average_sections_1 = moving_average(average_visited_sections_1, 250)
+
+data_swarm_6_states_2 = np.load(directory + '%d_agents/data_for_plots.npz' % 2)
+visited_sections_2 = data_swarm_6_states_2["fraction_of_seen_sections_of_pipe"]
+average_visited_sections_2 = data_swarm_6_states_2["average_fraction_pipe"]
+moving_average_sections_2 = moving_average(visited_sections_2, 250)
+moving_average_average_sections_2 = moving_average(average_visited_sections_2, 250)
 
 data_swarm_6_states_4 = np.load(directory + '%d_agents/data_for_plots.npz' % 4)
 visited_sections_4 = data_swarm_6_states_4["fraction_of_seen_sections_of_pipe"]
@@ -58,10 +63,11 @@ moving_average_average_sections_16 = moving_average(average_visited_sections_16,
 
 # directory = './data_baseline_new_reward/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/' % (visibility_pipe, gamma, epsilon_0, reset_type)
 
-reset_type = "line"
+reset_type = "area"
 
 # directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/' % (visibility_pipe, gamma, epsilon_0, reset_type)
-directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_t_star_%d_closer/' % (visibility_pipe, gamma, epsilon_0, reset_type, t_star_lr)
+# directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_t_star_%d_closer/' % (visibility_pipe, gamma, epsilon_0, reset_type, t_star_lr)
+directory = './data_baseline_new_reward/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_t_star_%d/' % (visibility_pipe, gamma, epsilon_0, reset_type, t_star_lr)
 
 # nn_data_swarm_6_states_1 = np.load(directory + '%d_agents/data_for_plots.npz' % 1)
 # nn_visited_sections_1 = nn_data_swarm_6_states_1["fraction_of_seen_sections_of_pipe"]
@@ -69,17 +75,29 @@ directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_
 # nn_moving_average_sections_1 = moving_average(nn_visited_sections_1, 250)
 # nn_moving_average_average_sections_1 = moving_average(nn_average_visited_sections_1, 250)
 #
-# nn_data_swarm_6_states_2 = np.load(directory + '%d_agents/data_for_plots.npz' % 2)
-# nn_visited_sections_2 = nn_data_swarm_6_states_2["fraction_of_seen_sections_of_pipe"]
-# nn_average_visited_sections_2 = nn_data_swarm_6_states_2["average_fraction_pipe"]
-# nn_moving_average_sections_2 = moving_average(nn_visited_sections_2, 250)
-# nn_moving_average_average_sections_2 = moving_average(nn_average_visited_sections_2, 250)
+nn_data_swarm_6_states_2 = np.load(directory + '%d_agents/data_for_plots.npz' % 2)
+nn_visited_sections_2 = nn_data_swarm_6_states_2["fraction_of_seen_sections_of_pipe"]
+nn_average_visited_sections_2 = nn_data_swarm_6_states_2["average_fraction_pipe"]
+nn_moving_average_sections_2 = moving_average(nn_visited_sections_2, 250)
+nn_moving_average_average_sections_2 = moving_average(nn_average_visited_sections_2, 250)
 
 nn_data_swarm_6_states_4 = np.load(directory + '%d_agents/data_for_plots.npz' % 4)
 nn_visited_sections_4 = nn_data_swarm_6_states_4["fraction_of_seen_sections_of_pipe"]
 nn_average_visited_sections_4 = nn_data_swarm_6_states_4["average_fraction_pipe"]
 nn_moving_average_sections_4 = moving_average(nn_visited_sections_4, 250)
 nn_moving_average_average_sections_4 = moving_average(nn_average_visited_sections_4, 250)
+
+nn_data_swarm_6_states_8 = np.load(directory + '%d_agents/data_for_plots.npz' % 8)
+nn_visited_sections_8 = nn_data_swarm_6_states_8["fraction_of_seen_sections_of_pipe"]
+nn_average_visited_sections_8 = nn_data_swarm_6_states_8["average_fraction_pipe"]
+nn_moving_average_sections_8 = moving_average(nn_visited_sections_8, 250)
+nn_moving_average_average_sections_8 = moving_average(nn_average_visited_sections_8, 250)
+
+nn_data_swarm_6_states_16 = np.load(directory + '%d_agents/data_for_plots.npz' % 16)
+nn_visited_sections_16 = nn_data_swarm_6_states_16["fraction_of_seen_sections_of_pipe"]
+nn_average_visited_sections_16 = nn_data_swarm_6_states_16["average_fraction_pipe"]
+nn_moving_average_sections_16 = moving_average(nn_visited_sections_16, 250)
+nn_moving_average_average_sections_16 = moving_average(nn_average_visited_sections_16, 250)
 
 fig = plt.figure(figsize=(40, 15))
 ax1 = fig.add_subplot(1, 1, 1)
@@ -89,30 +107,36 @@ ax1.tick_params(axis="x", labelsize=20)
 ax1.tick_params(axis="y", labelsize=20)
 
 
-ax1.set_title('Fraction of visited pipe sections (as a swarm)', fontsize=20)
+# ax1.set_title('Fraction of visited pipe sections (as a swarm)', fontsize=30)
 # ax1.plot(range(len(visited_sections_1))[-moving_average_sections_1.size:], moving_average_sections_1, label="1")
 # ax1.plot(range(len(visited_sections_2))[-moving_average_sections_2.size:], moving_average_sections_2, label="2")
-ax1.plot(range(len(visited_sections_4))[-moving_average_sections_4.size:], moving_average_sections_4, label="4", color = "C2")
-ax1.plot(range(len(visited_sections_8))[-moving_average_sections_8.size:], moving_average_sections_8, label="8")
-ax1.plot(range(len(visited_sections_16))[-moving_average_sections_16.size:], moving_average_sections_16, label="16")
+# ax1.plot(range(len(visited_sections_4))[-moving_average_sections_4.size:], moving_average_sections_4, label="4")
+# ax1.plot(range(len(visited_sections_8))[-moving_average_sections_8.size:], moving_average_sections_8, label="8")
+# ax1.plot(range(len(visited_sections_16))[-moving_average_sections_16.size:], moving_average_sections_16, label="16")
 # ax1.plot(range(len(nn_visited_sections_2))[-nn_moving_average_sections_2.size:], nn_moving_average_sections_2, label="2", color = "C1", linestyle = ":")
-ax1.plot(range(len(nn_visited_sections_4))[-nn_moving_average_sections_4.size:], nn_moving_average_sections_4, label="4", color = "C2", linestyle = ":")
+# ax1.plot(range(len(nn_visited_sections_4))[-nn_moving_average_sections_4.size:], nn_moving_average_sections_4, label="4", color = "C2", linestyle = ":")
+# ax1.plot(range(len(nn_visited_sections_8))[-nn_moving_average_sections_8.size:], nn_moving_average_sections_8, label="8", color = "C3", linestyle = ":")
+# ax1.plot(range(len(nn_visited_sections_16))[-nn_moving_average_sections_16.size:], nn_moving_average_sections_16, label="16", color = "C4", linestyle = ":")
 #
-# ax1.set_title('Average fraction of visited pipe sections', fontsize=20)
-# ax1.plot(range(len(average_visited_sections_1))[-moving_average_average_sections_1.size:], moving_average_average_sections_1, label="1", color = "C0")
-# ax1.plot(range(len(average_visited_sections_2))[-moving_average_average_sections_2.size:], moving_average_average_sections_2, label="2", color = "C1")
-# ax1.plot(range(len(average_visited_sections_4))[-moving_average_average_sections_4.size:], moving_average_average_sections_4, label="4", color = "C2")
-# ax1.plot(range(len(average_visited_sections_8))[-moving_average_average_sections_8.size:], moving_average_average_sections_8, label="8", color = "C3")
-# ax1.plot(range(len(average_visited_sections_16))[-moving_average_average_sections_16.size:], moving_average_average_sections_16, label="16", color = "C4")
-# ax1.plot(range(len(nn_average_visited_sections_2))[-nn_moving_average_average_sections_2.size:], nn_moving_average_average_sections_2, label="2", color = "C1", linestyle = ":")
-# ax1.plot(range(len(nn_average_visited_sections_4))[-nn_moving_average_average_sections_4.size:], nn_moving_average_average_sections_4, label="4", color = "C2", linestyle = ":")
+ax1.set_title('Average fraction of visited pipe sections', fontsize=30)
+ax1.plot(range(len(average_visited_sections_1))[-moving_average_average_sections_1.size:], moving_average_average_sections_1, label="1", color = "C0")
+ax1.plot(range(len(average_visited_sections_2))[-moving_average_average_sections_2.size:], moving_average_average_sections_2, label="2", color = "C1")
+ax1.plot(range(len(average_visited_sections_4))[-moving_average_average_sections_4.size:], moving_average_average_sections_4, label="4", color = "C2")
+ax1.plot(range(len(average_visited_sections_8))[-moving_average_average_sections_8.size:], moving_average_average_sections_8, label="8", color = "C3")
+ax1.plot(range(len(average_visited_sections_16))[-moving_average_average_sections_16.size:], moving_average_average_sections_16, label="16", color = "C4")
+ax1.plot(range(len(nn_average_visited_sections_2))[-nn_moving_average_average_sections_2.size:], nn_moving_average_average_sections_2, label="2", color = "C1", linestyle = ":")
+ax1.plot(range(len(nn_average_visited_sections_4))[-nn_moving_average_average_sections_4.size:], nn_moving_average_average_sections_4, label="4", color = "C2", linestyle = ":")
+ax1.plot(range(len(nn_average_visited_sections_8))[-nn_moving_average_average_sections_8.size:], nn_moving_average_average_sections_8, label="8", color = "C3", linestyle = ":")
+ax1.plot(range(len(nn_average_visited_sections_16))[-nn_moving_average_average_sections_16.size:], nn_moving_average_average_sections_16, label="16", color = "C4", linestyle = ":")
 
-ax1.legend(fontsize=20, loc='center left', title='n_agents:\n', bbox_to_anchor=(1, 0.5))
-# ax1.legend(fontsize=20, loc='center left', title='n_agents:\n dotted = baseline case', bbox_to_anchor=(1, 0.5))
+# ax1.legend(fontsize=20, loc='center left', title='n_agents:\n', bbox_to_anchor=(1, 0.5))
+legend = ax1.legend(fontsize=30, loc='center left', bbox_to_anchor=(1, 0.5))
 # ax1.legend(fontsize=20, loc='center left', title='n_agents:\n dotted = smaller noise', bbox_to_anchor=(1, 0.5))
 # ax1.legend(fontsize=20, loc='center left', title='n_agents:\n dotted = with long lost state', bbox_to_anchor=(1, 0.5))
 plt.ylim(0, 1)
 plt.grid()
+
+legend.set_title('n_agents:', prop={'size':30})
 
 # plt.savefig("%s/%.2f_.png" % (directory, episode), bbox_inches='tight')
 

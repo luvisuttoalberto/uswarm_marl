@@ -31,7 +31,7 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.999
+gamma = 0.9995
 
 # Number of episodes
 n_episodes = 1000
@@ -50,8 +50,8 @@ mean_velocity_noise = 0
 std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
-# reset_type = "area"
-reset_type = "line"
+reset_type = "area"
+# reset_type = "line"
 
 pipe_recognition_probability = 0.95
 
@@ -72,6 +72,8 @@ visibility_pipe = 0.6
 forgetting_factor_neigh = 0.9
 
 n_agents = 4
+
+t_star_lr = 24000
 
 print(n_agents)
 AF = HiddenPipeEnvironmentBenchmark(
@@ -102,7 +104,9 @@ AF = HiddenPipeEnvironmentBenchmark(
 
 epsilon_0 = 0.3
 
-input_directory = "./data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/%d_agents" % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
+input_directory = './data_multiple_runs/visibility_%.2f_gamma_%.4f_reset_%s_t_star_%d/%d_agents/2' % (visibility_pipe, gamma, reset_type, t_star_lr, n_agents)
+
+# input_directory = "./data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_longer/%d_agents" % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
 
 data_for_plots = np.load('%s/data_for_plots.npz' % input_directory)
 
@@ -115,7 +119,7 @@ if reset_type == "line":
 else:
     AF.reset_position_and_velocities_in_area()
 
-output_directory = './data_benchmark_swarm/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_extended/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents)
+output_directory = './data_benchmark_multiple_swarm/visibility_%.2f_gamma_%.4f_reset_%s_t_star_%d/%d_agents/2' % (visibility_pipe, gamma, reset_type, t_star_lr, n_agents)
 print(output_directory)
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 

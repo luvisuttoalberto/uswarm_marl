@@ -1,7 +1,5 @@
 import numpy as np
-from plot_functions import plot_maximum_distance, plot_policy, plot_Q_matrices, \
-    plot_Q_matrix_no_neigh_version, plot_policy_no_neigh, plot_average_highest_reward, plot_fraction_visited_pipes, \
-    plot_average_fraction_visited_pipes
+from plot_functions import plot_maximum_distance, plot_Q_matrix_no_neigh_version, plot_policy_no_neigh, plot_average_highest_reward, plot_fraction_visited_pipes, plot_average_fraction_visited_pipes
 from auxiliary_functions import compute_rotation_matrix
 from math import pi
 
@@ -10,19 +8,7 @@ mpl.rcParams['agg.path.chunksize'] = 10000
 
 np.set_printoptions(threshold=np.inf)
 
-pipe_recognition_probability = 1.
-
-prob_no_switch_state = 0.9
-
-prob_end_surge = 1/15.
-
-std_dev_measure_pipe = pi/16.
-
-forgetting_factor = 0.99
-
-visibility_pipe = 0.75
-
-t_star_lr = 6000
+visibility_pipe = 0.9
 
 gamma = 0.9995
 
@@ -32,7 +18,9 @@ flag_single_agent = True
 
 n_agents = 4
 
-data_for_plots = np.load('./data_baseline_new_reward/noise_%.2f_visibility_%.2f_t_star_%d_gamma_%.4f_recognition_%.2f_eps_%.1f/%d_agents/data_for_plots.npz' % (std_dev_measure_pipe, visibility_pipe, t_star_lr, gamma, pipe_recognition_probability, epsilon_0, n_agents))
+reset_type = "area"
+
+data_for_plots = np.load('./data_baseline_new_reward/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s/%d_agents/data_for_plots.npz' % (visibility_pipe, gamma, epsilon_0, reset_type, n_agents))
 
 # data_for_plots = np.load("./data_trace_6_states/no_step_no_scale_old_exp_6_states_%.2f_prob_%.2f_noise_%.3f_forgetting_factor_%.2f_2/data_for_plots.npz" % (prob_end_surge, prob_no_switch_state, std_dev_measure_pipe, forgetting_factor))
 

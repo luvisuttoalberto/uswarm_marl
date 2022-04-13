@@ -249,30 +249,38 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
 
 
 def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
-    X = np.arange(k_s)
+    X = np.arange(k_s-1)
     Y = np.arange(k_s)
     titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
 
+    tick_labels = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ",]
+    tick_labels_neigh = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ", "no-neigh"]
     for j in range(k_s_pipe):
+    # for j in [3]:
         fig = plt.figure(figsize=(25, 25))
         axes = fig.add_subplot(1, 1, 1)
 
-        axes.set_title("Agent %d, Relative position wrt pipe: %s" % (agent_index, titles[j]), fontsize=20)
-        axes.set_xlabel("Pipe state", fontsize = 20)
-        axes.set_ylabel("Neighbors state", fontsize = 20)
+        # axes.set_title("Agent %d, Relative position wrt pipe: %s" % (agent_index, titles[j]), fontsize=20)
+        axes.set_xlabel("Pipe state", fontsize = 30)
+        axes.set_ylabel("Neighbors state", fontsize = 30)
+        # axes.set_xlabel("Neighbors state", fontsize = 20)
+        # axes.set_ylabel("Pipe state", fontsize = 20)
         axes.set_xticks(X)
         axes.set_yticks(Y)
-        axes.tick_params(axis="x", labelsize=20)
-        axes.tick_params(axis="y", labelsize=20)
+        axes.set_xticklabels(tick_labels)
+        axes.set_yticklabels(tick_labels_neigh)
+        axes.tick_params(axis="x", labelsize=30)
+        axes.tick_params(axis="y", labelsize=30)
 
         greedy_policy = np.argmax(Q[:, :, j, :], axis=2)
         optimal_policy_arrows = np.zeros((k_s, k_s, 2))
         optimal_policy_arrows[:, :] = arrows_action[greedy_policy]
         U, V = optimal_policy_arrows[:, :, 0], optimal_policy_arrows[:, :, 1]
-        for i in range(k_s):
+        for i in range(k_s-1):
             for k in range(k_s):
                 # if Q_visits[k, i, j] != 0:
                 axes.quiver(X[i], Y[k], U[k, i], V[k, i], color='%f' % (1 - Q_visits[k, i, j]), pivot='middle')
+                # axes.quiver(X[i], Y[k], U[i, k], V[i, k], color='%f' % (1 - Q_visits[i, k, j]), pivot='middle')
 
         # plt.grid()
         plt.show()
@@ -441,7 +449,8 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
                'deepskyblue', 'dodgerblue', 'olive', 'saddlebrown', 'indigo', 'mediumblue', 'pink', 'deeppink']
     fig = plt.figure(figsize=(30, 30))
     camera = Camera(fig)
-    end_point_initial = min(500, T)
+    # end_point_initial = min(500, T)
+    end_point_initial = min(100, T)
     xlim_r = np.max(x_traj[:, 0:end_point_initial])
 
     plt.xlim([np.min(x_traj[:, 0:end_point_initial]), xlim_r])

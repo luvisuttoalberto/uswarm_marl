@@ -45,7 +45,7 @@ t_star_epsilon = 600*10
 
 # T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
-t_star_lr = 6000
+t_star_lr = 24000
 
 t_stop = 0
 
@@ -72,8 +72,8 @@ std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 # distance_from_pipe = R*np.sin(phi/2)
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
-# reset_type = "area"
-reset_type = "line"
+reset_type = "area"
+# reset_type = "line"
 
 pipe_recognition_probability = 0.95
 
@@ -135,11 +135,17 @@ AF = hidden_pipe_environment.HiddenPipeEnvironment(
     prob_end_lost_state
 )
 
-input_directory = "./data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_longer/%d_agents" % (visibility_pipe, gamma, reset_type, n_agents)
+reset_type = "area"
+
+input_directory = './data_multiple_runs/visibility_%.2f_gamma_%.4f_reset_%s_t_star_%d/%d_agents/2' % (visibility_pipe, gamma, reset_type, t_star_lr, n_agents)
+
+# input_directory = "./data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_longer/%d_agents" % (visibility_pipe, gamma, reset_type, n_agents)
 
 data_for_plots = np.load('%s/data_for_plots.npz' % input_directory)
 
 Q_matrices = data_for_plots["Q_matrices"]
+
+# reset_type = "line"
 
 for i in range(n_agents):
     AF.add_agent(i*0.5, 0, np.array([1, 0]), Q_matrices[i])
@@ -148,7 +154,7 @@ if reset_type == "line":
 else:
     AF.reset_position_and_velocities_in_area()
 
-output_directory = './data_benchmark_neigh/visibility_%.2f_gamma_%.4f_eps_0.3_reset_%s_extended/%d_agents' % (visibility_pipe, gamma, reset_type, n_agents)
+output_directory = './data_benchmark_multiple_neigh/visibility_%.2f_gamma_%.4f_reset_%s_t_star_%d/%d_agents/2' % (visibility_pipe, gamma, reset_type, t_star_lr, n_agents)
 print(output_directory)
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 

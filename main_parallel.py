@@ -34,21 +34,21 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.998
+gamma = 0.9995
 
 # Number of episodes
-n_episodes = 3200*20
+n_episodes = 3200*5
 # n_episodes = 20000
 
 # T_star epsilon (Timestep in the learning at which the exploration rate starts to decrease)
 # Can be different from t_star_lr
-t_star_epsilon = 600*20
+t_star_epsilon = 600*5
 
 # T_star learning rate (Timestep in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
-t_star_lr = 12000
+t_star_lr = 24000
 
-t_stop = 3200*20-100
+t_stop = 3200*5-100
 
 # Initial learning rate
 alpha_0 = 0.005
@@ -92,7 +92,7 @@ forgetting_factor = 0.99
 
 weight_smart_agent = 0.8
 
-visibility_pipe = 0.6
+visibility_pipe = 0.75
 
 # reward_follow_smart_agent = 0.8
 
@@ -100,50 +100,51 @@ forgetting_factor_neigh = 0.9
 
 prob_end_lost_state = 0
 
-for j in [4]:
-    print(j)
-    AF = hidden_pipe_environment.HiddenPipeEnvironment(
-        theta_max,
-        v0,
-        R,
-        k_s,
-        k_s_pipe,
-        k_a,
-        alpha_0,
-        phi,
-        n_episodes,
-        t_star_epsilon,
-        t_star_lr,
-        t_stop,
-        epsilon_0,
-        slope_pipe,
-        offset_pipe,
-        mean_velocity_noise,
-        mean_position_noise,
-        std_dev_velocity_noise,
-        std_dev_position_noise,
-        reset_type,
-        gamma,
-        prob_no_switch_state,
-        flag_spatially_uncorrelated_case,
-        std_dev_measure_pipe,
-        prob_end_surge,
-        forgetting_factor,
-        weight_smart_agent,
-        visibility_pipe,
-        pipe_recognition_probability,
-        prob_end_lost_state
-    )
+for k in [3]:
+    for j in [2,4]:
+        print(j)
+        AF = hidden_pipe_environment.HiddenPipeEnvironment(
+            theta_max,
+            v0,
+            R,
+            k_s,
+            k_s_pipe,
+            k_a,
+            alpha_0,
+            phi,
+            n_episodes,
+            t_star_epsilon,
+            t_star_lr,
+            t_stop,
+            epsilon_0,
+            slope_pipe,
+            offset_pipe,
+            mean_velocity_noise,
+            mean_position_noise,
+            std_dev_velocity_noise,
+            std_dev_position_noise,
+            reset_type,
+            gamma,
+            prob_no_switch_state,
+            flag_spatially_uncorrelated_case,
+            std_dev_measure_pipe,
+            prob_end_surge,
+            forgetting_factor,
+            weight_smart_agent,
+            visibility_pipe,
+            pipe_recognition_probability,
+            prob_end_lost_state
+        )
 
-    for i in range(j):
-        AF.add_agent(i*0.5, 0, np.array([1, 0]))
-    if reset_type == "line":
-        AF.reset_position_and_velocities_in_line()
-    else:
-        AF.reset_position_and_velocities_in_area()
+        for i in range(j):
+            AF.add_agent(i*0.5, 0, np.array([1, 0]))
+        if reset_type == "line":
+            AF.reset_position_and_velocities_in_line()
+        else:
+            AF.reset_position_and_velocities_in_area()
 
-    output_directory = './data_constant_recognition_extended_gif_try/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_t_star_%d_longer/%d_agents' % (visibility_pipe, gamma, epsilon_0, reset_type, t_star_lr, j)
-    print(output_directory)
-    pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
+        output_directory = './data_multiple_runs/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_t_star_%d/%d_agents/%d' % (visibility_pipe, gamma, epsilon_0, reset_type, t_star_lr, j, k)
+        print(output_directory)
+        pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
-    AF.complete_simulation(2500, output_directory)
+        AF.complete_simulation(1500, output_directory)
