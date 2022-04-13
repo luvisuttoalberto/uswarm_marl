@@ -88,7 +88,6 @@ class HiddenPipeEnvironment:
         # Initialization of previously explained parameters
         self.alpha_0 = alpha_0
         self.phi = phi
-        # self.T = T
         self.gamma = gamma
         self.n_episodes = n_episodes
         self.t_star_epsilon = t_star_epsilon
@@ -101,29 +100,20 @@ class HiddenPipeEnvironment:
         self.offset_pipe = offset_pipe
         self.angle_pipe = np.arctan(self.slope_pipe)
         self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
-        # self.perpendicular_angle_pipe = self.angle_pipe + pi / 2
-        # self.vector_perpendicular_to_pipe = np.dot(compute_rotation_matrix(self.perpendicular_angle_pipe),
-        #                                            np.array([1, 0]))
-
+        
         # Initialization of parameters connected to the gaussian noise on position and velocity
         self.mean_velocity_noise = mean_velocity_noise
         self.mean_position_noise = mean_position_noise
         self.std_dev_velocity_noise = std_dev_velocity_noise
         self.std_dev_position_noise = std_dev_position_noise
 
-        # self.distance_from_pipe = distance_from_pipe
-
+        # Type of reset for the position and velocities of agents at the end of the episode
         self.reset_type = reset_type
 
-        # Pre-computing the values of the learning and exploration rate for each timestep
-        # self.learning_rate_vector = np.empty(self.n_episodes)
+        # Pre-computing the values of the exploration rate for each timestep
         self.exploration_rate_vector = np.empty(self.n_episodes)
         for i in range(self.n_episodes):
-            # self.learning_rate_vector[i] = learning_rate_adaptive(i, self.alpha_0, self.t_star_lr, self.t_stop)
             self.exploration_rate_vector[i] = exploration_rate_adaptive(i, self.epsilon_0, self.t_star_epsilon, self.t_stop)
-
-        # self.maximum_reward = 1/(1-self.gamma)
-        # self.maximum_reward = 8000
 
         # Auxiliary value to avoid multiple computation of the denominator while computing the distance from the pipe
         # (always the same)
@@ -140,34 +130,24 @@ class HiddenPipeEnvironment:
         self.colors_agents = np.zeros((self.n_agents,))
         self.boolean_array_visibility = np.empty((self.n_agents, int(1/(1-self.gamma))))
 
-        # Reward vector storing rewards of a single episode, for each agent
-        # self.rewards = np.zeros((self.n_agents,))
-
-        # Reward vector storing the cumulative reward of each episode, summed across all timesteps and all agents
-        # self.epochs_rewards = np.zeros(self.n_episodes)
-
-        # Vectors used to count the frequency of occupancy of each state
-        # self.frequency_state_reward_region = np.zeros((self.n_agents, self.K_s_pipe))
-        # self.frequency_state_neighbours = np.zeros((self.n_agents, self.K_s))
-        # self.frequency_state_pipe = np.zeros((self.n_agents, self.K_s))
-
         # Vector used to store the maximum distance towards the objective reached in each episode.
-        self.maximum_distance_towards_objective = np.zeros(self.n_episodes)
+        # self.maximum_distance_towards_objective = np.zeros(self.n_episodes)
 
+        # Vector used to store the fraction of pipe seen in each episode
         self.fraction_of_seen_sections_of_pipe = np.zeros(self.n_episodes)
 
+        # Vector used to store the average fraction of pipe seen in each episode
         self.average_fraction_pipe = np.zeros(self.n_episodes)
 
-        # Vector used to store the polar order parameter (alignment of agents across each episode)
-        # self.polar_order_param = np.zeros(self.n_episodes)
+        # Vector that stores the number of timesteps for each episode
         self.number_of_steps_per_episode = np.zeros(self.n_episodes, dtype=int)
 
-        # self.done = False
+        # self.average_highest_reward = np.zeros(self.n_episodes)
 
-        self.average_highest_reward = np.zeros(self.n_episodes)
-
+        # Vector used to store if an agent has seen a certain section of the pipe or not
         self.boolean_array_visited_pipes = np.empty((self.n_agents, int(1 / 1 - self.gamma)))
 
+        # Output directory in which to store data
         self.output_directory = '.'
 
         self.prob_no_switch_state = prob_no_switch_state
@@ -594,9 +574,8 @@ class HiddenPipeEnvironment:
             self.agents_list[i].update_Q_matrix_exp_sarsa(reward,
                                                           self.exploration_rate_vector[current_episode],
                                                           t == self.number_of_steps_per_episode[current_episode] - 1)
-            # self.epochs_rewards[i][current_episode] += reward
-        self.average_highest_reward[current_episode] += np.max([self.agents_list[i].r for i in range(self.n_agents)]) \
-                                                        / self.number_of_steps_per_episode[current_episode]
+        # self.average_highest_reward[current_episode] += np.max([self.agents_list[i].r for i in range(self.n_agents)]) \
+        #                                                 / self.number_of_steps_per_episode[current_episode]
 
     def reset_position_and_velocities_in_area(self):
         """
@@ -699,8 +678,8 @@ class HiddenPipeEnvironment:
         for i in range(self.n_agents):
             distance_from_objective[i] = euclidean_norm(
                 self.vector_pipe * self.v0 * self.number_of_steps_per_episode[current_episode] - self.agents_list[i].p)
-        self.maximum_distance_towards_objective[current_episode] = 1 - np.min(distance_from_objective) / (
-                self.v0 * self.number_of_steps_per_episode[current_episode])
+        # self.maximum_distance_towards_objective[current_episode] = 1 - np.min(distance_from_objective) / (
+        #         self.v0 * self.number_of_steps_per_episode[current_episode])
 
         # print(np.max(self.boolean_array_visited_pipes, axis=0).shape)
         # print(np.max(self.boolean_array_visited_pipes, axis=0))
@@ -777,12 +756,12 @@ class HiddenPipeEnvironment:
                  K_s_pipe=self.K_s_pipe,
                  K_a=self.K_a,
                  theta_max=self.theta_max,
-                 maximum_distance_towards_objective=self.maximum_distance_towards_objective,
+                #  maximum_distance_towards_objective=self.maximum_distance_towards_objective,
                  fraction_of_seen_sections_of_pipe=self.fraction_of_seen_sections_of_pipe,
                  Q_matrices=matrices_to_be_saved,
                  Q_visits=frequencies_for_policy_plots,
                  number_of_steps_per_episode=self.number_of_steps_per_episode,
-                 average_highest_reward=self.average_highest_reward,
+                #  average_highest_reward=self.average_highest_reward,
                  average_fraction_pipe=self.average_fraction_pipe,
                  global_state_action_rate_visits=global_state_action_rate_visits
                  )
