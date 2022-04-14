@@ -1,8 +1,7 @@
 import numpy as np
-
-from agent_baseline import AgentBaseline
-from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive, exploration_rate_adaptive, is_scalar_in_visible_interval
+from auxiliary_functions import compute_rotation_matrix, exploration_rate_adaptive, is_scalar_in_visible_interval
 from math import sqrt, degrees, pi, floor
+from agent_baseline import AgentBaseline
 from numpy.linalg import norm as euclidean_norm
 import random
 from time import time
@@ -34,45 +33,77 @@ class HiddenPipeEnvironmentSingleAgent:
                  std_dev_velocity_noise,
                  std_dev_position_noise,
                  gamma,
-                 prob_no_switch_state,
-                 flag_spatially_uncorrelated_case,
                  std_dev_measure_pipe,
                  prob_end_surge,
-                 forgetting_factor):
+                 forgetting_factor,
+                 visibility_pipe,
+                 pipe_recognition_probability):
         """
         Constructor of the class.
         """
 
-        # The number of agents is initialized to 0; then agents are added to the environment (and to the agents list)
-        # one at a time
         self.n_agents = 1
         self.gamma = gamma
-        self.v0 = v0
-        self.phi = phi
-        self.K_a = k_a
-        self.K_s_pipe = k_s_pipe
-        self.R = radius
-# ----------------------------------------------------------------------------------------------------------------
-# CLASSIC STATES
-#         Initialization of the vector of possible states (Discretization of the states)
-        self.possible_states = [x for x in np.linspace(-pi, pi - 2*pi/k_s, k_s)]
-        # This auxiliary vector of states is used in order to assign states close to -pi and pi to the same state
-        self.extended_states = [x for x in np.linspace(-pi, pi, k_s + 1)]
-# -----------------------------------------------------------------------------------------------------------------
-# ADDITIONAL STATES FOR NO INFO ON ORIENTATION OF THE PIPE
-#         self.possible_states = [x for x in np.linspace(-pi, pi, k_s)]
-#         # Giving a value to the state in which there are no neighbours
-#         self.no_neighbours_state = 100.
-#         # Appending the "no neighbours" state to the previously initialized vector
-#         self.possible_states[k_s - 1] = self.no_neighbours_state
-#
-#         # This auxiliary vector of states is used in order to assign states close to -pi and pi to the same state
-#         self.extended_states = [x for x in np.linspace(-pi, pi, k_s)]
-#         self.extended_states[k_s - 1] = self.no_neighbours_state
-#         # Extending the vector of possible states by appending pi
-#         self.extended_states.append(pi)
-# ------------------------------------------------------------------------------------------------------------------
 
+        self.theta_max = theta_max
+        self.v0 = v0
+        self.R = radius
+
+        # States
+        self.K_s = k_s
+        self.K_s_pipe = k_s_pipe
+
+        # Initialization of the vector of possible states (Discretization of the states)
+        self.possible_states = [x for x in np.linspace(-pi, pi, k_s)]
+        # Giving a value to the state in which there are no neighbours
+        self.no_neighbours_state = 100.
+        # Appending the "no neighbours" state to the previously initialized vector
+        self.possible_states[k_s - 1] = self.no_neighbours_state
+
+        # This auxiliary vector of states is used in order to assign states close to -pi and pi to the same state
+        self.extended_states = [x for x in np.linspace(-pi, pi, k_s)]
+        self.extended_states[k_s - 1] = self.no_neighbours_state
+        # Extending the vector of possible states by appending pi
+        self.extended_states.append(pi)
+
+        # Actions
+        self.K_a = k_a
+
+        # Initialization of the vector of possible actions (Discretization of the actions)
+        self.possible_actions = [x for x in np.linspace(-self.theta_max, self.theta_max, self.K_a)]
+
+        # Initialization of previously explained parameters
+        self.alpha_0 = alpha_0
+        self.phi = phi
+        self.n_episodes = n_episodes
+        self.t_star_epsilon = t_star_epsilon
+        self.t_star_lr = t_star_lr
+        self.t_stop = t_stop
+        self.epsilon_0 = epsilon_0
+
+        # Initialization of parameters connected to the pipe position and orientation
+        self.slope_pipe = slope_pipe
+        self.offset_pipe = offset_pipe
+        self.angle_pipe = np.arctan(self.slope_pipe)
+        self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
+
+        # Initialization of parameters connected to the gaussian noise on position and velocity
+        self.mean_velocity_noise = mean_velocity_noise
+        self.mean_position_noise = mean_position_noise
+        self.std_dev_velocity_noise = std_dev_velocity_noise
+        self.std_dev_position_noise = std_dev_position_noise
+
+        # Pre-computing the values of the exploration rate for each time step
+        self.exploration_rate_vector = np.empty(self.n_episodes)
+        for i in range(self.n_episodes):
+            self.exploration_rate_vector[i] = exploration_rate_adaptive(i, self.epsilon_0, self.t_star_epsilon, self.t_stop)
+
+        # Auxiliary value to avoid multiple computation of the denominator while computing the distance from the pipe
+        # (always the same)
+        self.auxiliary_den_dist_line = sqrt(self.slope_pipe ** 2 + 1)
+
+        # Plot-related vectors
+        # Spatial trajectories
         self.x_trajectory = np.zeros((self.n_agents,))
         self.y_trajectory = np.zeros((self.n_agents,))
         self.orientation = np.zeros((self.n_agents,))
@@ -81,191 +112,101 @@ class HiddenPipeEnvironmentSingleAgent:
         self.visibility_of_pipe = np.zeros((self.n_agents,), dtype=bool)
         self.boolean_array_visibility = np.empty((self.n_agents, int(1 / (1 - self.gamma))))
 
-        self.slope_pipe = slope_pipe
-
-        self.theta_max = theta_max
-
-        # States
-        self.K_s = k_s
-
-
-        self.timeout_side = 0
-
-        # self.extended_states[k_s - 1] = self.no_neighbours_state
-        # Extending the vector of possible states by appending pi
-        # self.extended_states.append(pi)
-
-        # Actions
-
-        # Initialization of the vector of possible actions (Discretization of the actions)
-        self.possible_actions = [x for x in np.linspace(-self.theta_max, self.theta_max, self.K_a)]
-
-        # Initialization of previously explained parameters
-        self.alpha_0 = alpha_0
-        # self.T = T
-        self.n_episodes = n_episodes
-        self.t_star_epsilon = t_star_epsilon
-        self.t_star_lr = t_star_lr
-        self.t_stop = t_stop
-        self.epsilon_0 = epsilon_0
-
-        # Initialization of parameters connected to the pipe position and orientation
-        self.offset_pipe = offset_pipe
-        self.angle_pipe = np.arctan(self.slope_pipe)
-        self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
-        # self.perpendicular_angle_pipe = self.angle_pipe + pi / 2
-        # self.vector_perpendicular_to_pipe = np.dot(compute_rotation_matrix(self.perpendicular_angle_pipe),
-        #                                            np.array([1, 0]))
-
-        # Initialization of parameters connected to the gaussian noise on position and velocity
-        self.mean_velocity_noise = mean_velocity_noise
-        self.mean_position_noise = mean_position_noise
-        self.std_dev_velocity_noise = std_dev_velocity_noise
-        self.std_dev_position_noise = std_dev_position_noise
-
-        # self.distance_from_pipe = distance_from_pipe
-
-        # Pre-computing the values of the learning and exploration rate for each timestep
-        self.learning_rate_vector = np.empty(self.n_episodes)
-        self.exploration_rate_vector = np.empty(self.n_episodes)
-        for i in range(self.n_episodes):
-            self.learning_rate_vector[i] = learning_rate_adaptive(i, self.alpha_0, self.t_star_lr)
-            self.exploration_rate_vector[i] = exploration_rate_adaptive(i, self.epsilon_0, self.t_star_epsilon, self.t_stop)
-
-        # Auxiliary value to avoid multiple computation of the denominator while computing the distance from the pipe
-        # (always the same)
-        self.auxiliary_den_dist_line = sqrt(self.slope_pipe ** 2 + 1)
-
-        # Reward vector storing rewards of a single episode, for each agent
-        # self.rewards = np.zeros((self.n_agents,))
-
-        # Reward vector storing the cumulative reward of each episode, summed across all timesteps and all agents
-        # self.epochs_rewards = np.zeros(self.n_episodes)
-
-        # Vectors used to count the frequency of occupancy of each state
-        # self.frequency_state_reward_region = np.zeros((self.n_agents, self.K_s_pipe))
-        # self.frequency_state_neighbours = np.zeros((self.n_agents, self.K_s))
-        # self.frequency_state_pipe = np.zeros((self.n_agents, self.K_s))
-
-        # Vector used to store the maximum distance towards the objective reached in each episode.
-        self.maximum_distance_towards_objective = np.zeros(self.n_episodes)
-
+        # Vector used to store the fraction of pipe seen in each episode
         self.fraction_of_seen_sections_of_pipe = np.zeros(self.n_episodes)
 
+        # Vector used to store the average fraction of pipe seen in each episode
+        self.average_fraction_pipe = np.zeros(self.n_episodes)
+
+        # Vector that stores the number of time steps for each episode
         self.number_of_steps_per_episode = np.zeros(self.n_episodes, dtype=int)
 
+        # Vector used to store if an agent has seen a certain section of the pipe or not
         self.boolean_array_visited_pipes = np.empty(int(1 / 1 - self.gamma))
-        self.average_highest_reward = np.zeros(self.n_episodes)
 
+        # Output directory in which to store data
         self.output_directory = '.'
 
-        self.flag_spatially_uncorrelated_case = flag_spatially_uncorrelated_case
-
-        self.prob_no_switch_state = prob_no_switch_state
-
+        # Standard deviation for the error in the measure of the pipe orientation
         self.std_dev_measure_pipe = std_dev_measure_pipe
 
+        # Probability of moving from state JustLost to state Lost
         self.prob_end_surge = prob_end_surge
 
+        # Forgetting factor for the calculus of the running average over the pipe orientation
         self.forgetting_factor = forgetting_factor
+
+        # Visibility of the pipe (value in [0,1])
+        self.visibility_pipe = visibility_pipe
+
+        # Probability of recognition of the pipe if it's in the agent's fov
+        self.pipe_recognition_probability = pipe_recognition_probability
 
         self.agent = AgentBaseline(0, 0, np.array([1, 0]), self.v0, self.phi, self.K_a, self.possible_states, self.K_s_pipe, self.R, self.std_dev_measure_pipe, self.forgetting_factor, self.alpha_0, self.t_star_lr)
         self.agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(self.agent.p)
 
     def discretize_state(self, state):
         """
-            Discretizes the state of an agent.
-            """
-
+        Discretizes the state of an agent.
+        """
         index_pipe_state = (np.abs(self.extended_states - state[0])).argmin()
 
         # Takes into account the previously introduced problem with -pi and pi associated to two different states
         if index_pipe_state == self.K_s:
             index_pipe_state = 0
 
-        return [self.possible_states[index_pipe_state], state[1]]
+        return [self.possible_states[index_pipe_state]]
 
     def compute_oriented_distance_from_pipe(self, position):
-        # computed as the distance of a point from a line (with sign)
+        """
+        Computes the distance of a point (the agent) from a line (the pipe)
+        """
         return (position[1] - self.slope_pipe * position[0] - self.offset_pipe) / self.auxiliary_den_dist_line
 
     def is_agent_seeing_the_pipe(self):
-        if -self.R < self.agent.oriented_distance_from_pipe < self.R and is_scalar_in_visible_interval(self.agent.p[0], self.boolean_array_visibility[0], 5):
-            return self.agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
-                self.agent.p + self.agent.vector_start_fov) <= 0 \
-                   or self.agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
-                self.agent.p + self.agent.vector_end_fov) <= 0
+        """
+        Checks if the agent is seeing a visible section of the pipe
+        """
+        if -self.R < self.agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(self.agent.p[0], self.boolean_array_visibility[0], 5):
+            return self.agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(self.agent.p + self.agent.vector_start_fov) <= 0 or self.agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(self.agent.p + self.agent.vector_end_fov) <= 0
         else:
             return False
 
-    def obtain_agent_state(self):
+    def obtain_information_state(self):
         """
-        Obtains the state of agent "index".
+        Obtains the information state of agent "index"
         """
-        # Pipe state computation
         if self.agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
-            if -1 < self.agent.oriented_distance_from_pipe < 1:
+            if -0.5 < self.agent.oriented_distance_from_pipe < 0.5:
+                state_relative_position = 0
+            elif self.agent.oriented_distance_from_pipe < -0.5:
                 state_relative_position = 1
-            elif self.agent.oriented_distance_from_pipe < -1:
-                state_relative_position = 4
             else:
-                state_relative_position = 5
-        elif self.agent.s[1] == 1:
-# -------------------------------------------------------------------------------------------------------------------
-# VERSION WITHOUT INTERMEDIATE STATE
-#             if self.agent.oriented_distance_from_pipe > 0:
-#                 state_relative_position = 0
-#             else:
-#                 state_relative_position = 2
-
-# VERSION WITH INTERMEDIATE STATE
+                state_relative_position = 2
+        elif self.agent.s[1] in [0, 1, 2]:
             state_relative_position = 3
         elif self.agent.s[1] == 3:
-            # if self.agent.timeout_info_pipe > 20:
             if np.random.binomial(1, self.prob_end_surge):
-                self.timeout_side = 0
-                # CHANGE THIS WITH LAST ESTIMATION OF RELATIVE POSITION WRT PIPE: TO BE KEPT IN MEMORY BY AGENT
-                if self.agent.oriented_distance_from_pipe > 0:
-                    state_relative_position = 0
-                else:
-                    state_relative_position = 2
+                state_relative_position = 4
             else:
                 state_relative_position = self.agent.s[1]
-# ------------------------------------------------------------------------------------------------------------------
         else:
-            # if self.timeout_side < 5:
-            if np.random.binomial(1, self.prob_no_switch_state):
-                state_relative_position = self.agent.s[1]
-                # self.timeout_side += 1
-            else:
-                # self.timeout_side = 0
-                if self.agent.s[1] == 0:
-                    state_relative_position = 2
-                else:
-                    state_relative_position = 0
+            state_relative_position = self.agent.s[1]
 
-        if state_relative_position == -1:
-            print("ERRORE: previous s = ", self.agent.s[1])
-        # Compute a rotated v of pi/2; needed for computation of the state
-        rotated_v = np.dot(compute_rotation_matrix(pi / 2), self.agent.v)
-# ------------------------------------------------------------------------------------------------------------------
-# VERSION WITH NO EXTRA STATE FOR NO INFORMATION
+        return state_relative_position
+
+    def obtain_orientations_states(self):
+        """
+        Obtains the pipe and the neighbors state of agent "index"
+        """
+        rotated_v = np.dot(compute_rotation_matrix(pi/2), self.agent.v)
+
         if np.dot(self.agent.vector_pipe, rotated_v) > 0:
-            state_orientation = np.arccos(np.dot(self.agent.vector_pipe, self.agent.v) / euclidean_norm(self.agent.vector_pipe))
+            state_pipe = np.arccos(np.dot(self.agent.vector_pipe, self.agent.v) / euclidean_norm(self.agent.vector_pipe))
         else:
-            state_orientation = -np.arccos(np.dot(self.agent.vector_pipe, self.agent.v) / euclidean_norm(self.agent.vector_pipe))
-# VERSION WITH EXTRA STATE FOR NO INFORMATION
-#         if state_relative_position == 0 or state_relative_position == 2:
-#             state_orientation = self.no_neighbours_state
-#         else:
-#             if np.dot(self.agent.vector_pipe, rotated_v) > 0:
-#                 state_orientation = np.arccos(
-#                     np.dot(self.agent.vector_pipe, self.agent.v) / euclidean_norm(self.agent.vector_pipe))
-#             else:
-#                 state_orientation = -np.arccos(
-#                     np.dot(self.agent.vector_pipe, self.agent.v) / euclidean_norm(self.agent.vector_pipe))
-# ------------------------------------------------------------------------------------------------------------------
-        state = np.array([state_orientation, state_relative_position])
+            state_pipe = -np.arccos(np.dot(self.agent.vector_pipe, self.agent.v) / euclidean_norm(self.agent.vector_pipe))
+
+        state = np.asarray([state_pipe])
         return self.discretize_state(state)
 
     def obtain_reward_of_agent(self):
@@ -273,12 +214,9 @@ class HiddenPipeEnvironmentSingleAgent:
         Obtains the reward of agent "index"
         """
         if self.agent.flag_is_agent_seeing_the_pipe:
-            return np.cos(self.agent.Beta - self.agent.angle_pipe)
-        else:
-            # if -5 < self.agent.oriented_distance_from_pipe < 5:
-            return 0
-            # else:
-                # return -abs(self.agent.oriented_distance_from_pipe)
+            return np.cos(self.agent.Beta - self.agent.angle_pipe) - 1
+        else: # agent is not seeing the pipe
+            return -1
 
     def save_episode_trajectories(self, t):
         """
@@ -294,7 +232,7 @@ class HiddenPipeEnvironmentSingleAgent:
 
     def simulation_step(self, t, current_episode):
         """
-        Simulates a single timestep t of episode current_episode.
+        Simulates a single time step t of episode current_episode.
         """
         # Action update
         self.agent.update_action(self.exploration_rate_vector[current_episode])
@@ -302,25 +240,27 @@ class HiddenPipeEnvironmentSingleAgent:
         # Velocity and position update
         self.agent.update_velocity_noisy(self.possible_actions[self.agent.a], self.mean_velocity_noise, self.std_dev_velocity_noise)
         self.agent.update_position_noisy(self.mean_position_noise, self.std_dev_position_noise)
+
+        # Update infos on pipe for each agent
         self.agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(self.agent.p)
         self.agent.update_info_on_pipe(self.is_agent_seeing_the_pipe(), t == 0)
         if self.agent.flag_is_agent_seeing_the_pipe:
             self.boolean_array_visited_pipes[floor(self.agent.p[0])] = 1
 
         # State update
-        self.agent.update_state(self.obtain_agent_state())
+        self.agent.update_information_state(self.obtain_information_state())
+
+        self.agent.update_orientations_state(self.obtain_orientations_states())
 
         # Reward computation and Q matrix update
         reward = self.obtain_reward_of_agent()
-        self.agent.update_Q_matrix_exp_sarsa(reward, self.exploration_rate_vector[current_episode], t == self.number_of_steps_per_episode[current_episode] - 1)
-        self.average_highest_reward[current_episode] += self.agent.r / self.number_of_steps_per_episode[current_episode]
+        self.agent.update_Q_matrix_exp_sarsa(reward,
+                                             self.exploration_rate_vector[current_episode],
+                                             t == self.number_of_steps_per_episode[current_episode] - 1)
 
     def reset_position_and_velocity(self):
         """
-        Resets the position and velocities of all agents so that:
-        - their position falls inside a specific area
-        - they all face towards the right (means v[0] > 0)
-        - the leftmost agent sees them all (has all the other agents as neighbours)
+        Resets the position and velocities
         """
         random_velocity = np.empty(2)
         random_velocity[0] = random.uniform(0, 1)
@@ -333,29 +273,41 @@ class HiddenPipeEnvironmentSingleAgent:
         """
         Simulates a whole episode.
         """
-        if current_episode >= self.t_stop:
+        # Compute episode length
+        if current_episode >= self.t_stop:# If it's one of the benchmark episodes, length is fixed
             self.number_of_steps_per_episode[current_episode] = 1/(1-self.gamma)
-        else:
+        else: # Otherwise length is randomly sampled
             self.number_of_steps_per_episode[current_episode] = int(np.random.geometric(1 - self.gamma))
+
+        # Divide the length of the pipe in intervals. Depending on agents' initial positions we have longer or shorter pipe.
         number_of_intervals = floor(self.number_of_steps_per_episode[current_episode] * self.v0) + 2
+
+        # Sample the visibility of each section
         self.boolean_array_visibility = np.zeros((self.n_agents, max(floor(number_of_intervals / 5) + 1, 1)))
-        self.boolean_array_visibility[0] = np.random.binomial(size=max(floor(number_of_intervals / 5) + 1, 1), n=1, p=.5)
+        self.boolean_array_visibility[0] = np.random.binomial(size=max(floor(number_of_intervals / 5) + 1, 1), n=1, p=self.visibility_pipe)
         self.boolean_array_visibility[0][0] = 1
         self.boolean_array_visited_pipes = np.zeros(max(number_of_intervals, 1))
 
+        # Initialize info on pipe and states for each agent at first time step
         self.agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(self.agent.p)
         self.agent.update_info_on_pipe(self.is_agent_seeing_the_pipe(), True)
         if self.agent.flag_is_agent_seeing_the_pipe:
             self.boolean_array_visited_pipes[floor(self.agent.p[0])] = 1
-        self.agent.update_state(self.obtain_agent_state())
+
+        self.agent.update_information_state(self.obtain_information_state())
+
+        self.agent.update_orientations_state(self.obtain_orientations_states())
 
         if save_trajectory:
+            # Initialize vectors to save data
             self.x_trajectory = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             self.y_trajectory = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             self.orientation = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             self.vector_fov_starts = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
             self.vector_fov_ends = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
             self.visibility_of_pipe = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]), dtype=bool)
+
+            # Simulate all time steps
             for t in range(self.number_of_steps_per_episode[current_episode]):
                 self.simulation_step(t, current_episode)
                 self.save_episode_trajectories(t)
@@ -363,12 +315,14 @@ class HiddenPipeEnvironmentSingleAgent:
             for t in range(self.number_of_steps_per_episode[current_episode]):
                 self.simulation_step(t, current_episode)
 
-        # Computes the maximum distance reached towards the objective (for plots)
-        distance_from_objective = np.zeros(self.n_agents)
-        distance_from_objective[0] = euclidean_norm(self.vector_pipe * self.v0 * self.number_of_steps_per_episode[current_episode] - self.agent.p)
-        self.maximum_distance_towards_objective[current_episode] = 1 - np.min(distance_from_objective) / (self.v0 * self.number_of_steps_per_episode[current_episode])
-
         self.fraction_of_seen_sections_of_pipe[current_episode] = np.sum(self.boolean_array_visited_pipes) / (5*np.sum(self.boolean_array_visibility[0]))
+
+        tmp_average_fraction_pipe = np.zeros(self.n_agents)
+        for i in range(self.n_agents):
+            tmp_average_fraction_pipe[i] = np.sum(self.boolean_array_visited_pipes[i]) / (5 * np.sum(self.boolean_array_visibility[i]))
+
+        self.average_fraction_pipe[current_episode] = np.mean(tmp_average_fraction_pipe)
+
         if save_trajectory:
             np.savez("%s/episode_%d.npz" % (self.output_directory, current_episode),
                      x_traj=self.x_trajectory,
@@ -382,23 +336,17 @@ class HiddenPipeEnvironmentSingleAgent:
 
         # Reset positions and velocities of the agents accordingly
         self.reset_position_and_velocity()
-        # if self.reset_type == "area":
-        #     self.reset_position_and_velocities_in_area()
-        # elif self.reset_type == "line":
-        #     self.reset_position_and_velocities_in_line()
 
     def complete_simulation(self, interval_print_data, output_directory):
         """
         Performs the complete simulation, plotting single episode related data every "interval_print_data" steps.
         """
-        # self.epochs_rewards = np.zeros((self.n_agents, self.n_episodes))
 
         self.output_directory = output_directory
 
         global_start_time = time()
         start_time = time()
         for j in range(self.n_episodes):
-
             save_trajectory = j % interval_print_data == 0 or j == self.n_episodes - 1
             self.simulate_episode(j, save_trajectory)
             if j % (self.n_episodes / 10) == 0:
@@ -411,17 +359,19 @@ class HiddenPipeEnvironmentSingleAgent:
         frequencies_for_policy_plots = np.zeros([self.n_agents, self.K_s, self.K_s_pipe])
         frequencies_for_policy_plots[0] = self.agent.Q_visits
 
+        global_state_action_rate_visits = np.zeros([self.n_agents, len(self.possible_states), self.K_s_pipe, self.K_a])
+        global_state_action_rate_visits[0] = self.agent.state_action_rate_visits
+
         np.savez("%s/data_for_plots.npz" % self.output_directory,
                  K_s=self.K_s,
                  K_s_pipe=self.K_s_pipe,
                  K_a=self.K_a,
                  theta_max=self.theta_max,
-                 maximum_distance_towards_objective=self.maximum_distance_towards_objective,
                  fraction_of_seen_sections_of_pipe=self.fraction_of_seen_sections_of_pipe,
                  Q_matrices=matrices_to_be_saved,
                  Q_visits=frequencies_for_policy_plots,
                  number_of_steps_per_episode=self.number_of_steps_per_episode,
-                 average_highest_reward=self.average_highest_reward
+                 average_fraction_pipe=self.average_fraction_pipe
                  )
 
         print("Global time: ", time() - global_start_time)

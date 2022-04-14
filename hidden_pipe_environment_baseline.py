@@ -100,7 +100,7 @@ class HiddenPipeEnvironmentBaseline:
         # Type of reset for the position and velocities of agents at the end of the episode
         self.reset_type = reset_type
 
-        # Pre-computing the values of the exploration rate for each timestep
+        # Pre-computing the values of the exploration rate for each time step
         self.exploration_rate_vector = np.empty(self.n_episodes)
         for i in range(self.n_episodes):
             self.exploration_rate_vector[i] = exploration_rate_adaptive(i, self.epsilon_0, self.t_star_epsilon, self.t_stop)
@@ -125,7 +125,7 @@ class HiddenPipeEnvironmentBaseline:
         # Vector used to store the average fraction of pipe seen in each episode
         self.average_fraction_pipe = np.zeros(self.n_episodes)
 
-        # Vector that stores the number of timesteps for each episode
+        # Vector that stores the number of time steps for each episode
         self.number_of_steps_per_episode = np.zeros(self.n_episodes, dtype=int)
 
         # Vector used to store if an agent has seen a certain section of the pipe or not
@@ -270,7 +270,7 @@ class HiddenPipeEnvironmentBaseline:
 
     def simulation_step(self, t, current_episode):
         """
-        Simulates a single timestep t of episode current_episode.
+        Simulates a single time step t of episode current_episode.
         """
 
         # Action update
@@ -462,7 +462,8 @@ class HiddenPipeEnvironmentBaseline:
                  Q_visits=frequencies_for_policy_plots,
                  number_of_steps_per_episode=self.number_of_steps_per_episode,
                  average_fraction_pipe=self.average_fraction_pipe,
-                 global_state_action_rate_visits=global_state_action_rate_visits)
+                 global_state_action_rate_visits=global_state_action_rate_visits
+                 )
 
         print(self.fraction_of_seen_sections_of_pipe)
 
