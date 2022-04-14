@@ -20,6 +20,7 @@ class Agent:
         possible_states is a vector containing all the possible neighbours states.
         k_s_pipe is the number of possible information states.
         radius is the radius defining the field of view.
+        std_dev_measure_pipe is the standard deviation of the gaussian error on the measure of the pipe orientation.
         """
         self.p = np.array([x, y])
         self.v = np.array(v)

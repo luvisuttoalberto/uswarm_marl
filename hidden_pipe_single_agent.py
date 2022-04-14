@@ -129,7 +129,7 @@ class HiddenPipeEnvironmentSingleAgent:
         self.learning_rate_vector = np.empty(self.n_episodes)
         self.exploration_rate_vector = np.empty(self.n_episodes)
         for i in range(self.n_episodes):
-            self.learning_rate_vector[i] = learning_rate_adaptive(i, self.alpha_0, self.t_star_lr, self.t_stop)
+            self.learning_rate_vector[i] = learning_rate_adaptive(i, self.alpha_0, self.t_star_lr)
             self.exploration_rate_vector[i] = exploration_rate_adaptive(i, self.epsilon_0, self.t_star_epsilon, self.t_stop)
 
         # Auxiliary value to avoid multiple computation of the denominator while computing the distance from the pipe
@@ -169,7 +169,7 @@ class HiddenPipeEnvironmentSingleAgent:
 
         self.forgetting_factor = forgetting_factor
 
-        self.agent = AgentNoNeigh(0, 0, np.array([1, 0]), self.v0, self.phi, self.K_a, self.possible_states, self.K_s_pipe, self.R, self.gamma, self.std_dev_measure_pipe, self.forgetting_factor)
+        self.agent = AgentNoNeigh(0, 0, np.array([1, 0]), self.v0, self.phi, self.K_a, self.possible_states, self.K_s_pipe, self.R, self.std_dev_measure_pipe, self.forgetting_factor, self.alpha_0, self.t_star_lr)
         self.agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(self.agent.p)
 
     def discretize_state(self, state):
@@ -190,7 +190,7 @@ class HiddenPipeEnvironmentSingleAgent:
         return (position[1] - self.slope_pipe * position[0] - self.offset_pipe) / self.auxiliary_den_dist_line
 
     def is_agent_seeing_the_pipe(self):
-        if -self.R < self.agent.oriented_distance_from_pipe < self.R and is_scalar_in_visible_interval(self.agent.p[0], self.boolean_array_visibility[0], 5, self.flag_spatially_uncorrelated_case):
+        if -self.R < self.agent.oriented_distance_from_pipe < self.R and is_scalar_in_visible_interval(self.agent.p[0], self.boolean_array_visibility[0], 5):
             return self.agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
                 self.agent.p + self.agent.vector_start_fov) <= 0 \
                    or self.agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(
@@ -203,7 +203,6 @@ class HiddenPipeEnvironmentSingleAgent:
         Obtains the state of agent "index".
         """
         # Pipe state computation
-        state_relative_position = -1
         if self.agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -1 < self.agent.oriented_distance_from_pipe < 1:
                 state_relative_position = 1
@@ -313,7 +312,7 @@ class HiddenPipeEnvironmentSingleAgent:
 
         # Reward computation and Q matrix update
         reward = self.obtain_reward_of_agent()
-        self.agent.update_Q_matrix_exp_sarsa(self.learning_rate_vector[current_episode], reward, self.exploration_rate_vector[current_episode], t == self.number_of_steps_per_episode[current_episode] - 1)
+        self.agent.update_Q_matrix_exp_sarsa(reward, self.exploration_rate_vector[current_episode], t == self.number_of_steps_per_episode[current_episode] - 1)
         self.average_highest_reward[current_episode] += self.agent.r / self.number_of_steps_per_episode[current_episode]
 
     def reset_position_and_velocity(self):

@@ -22,7 +22,7 @@ def exploration_rate_adaptive(t, epsilon_0, t_star, t_stop):
         # return epsilon_0 / ((t / t_star) ** 1.5)
         # return epsilon_0 / (1. + 1.5 * (t / t_star) ** 0.5) # longer_old_exp
         # return epsilon_0 / (1.5 * (t / t_star) ** 0.5) # longer_no_step_old_exp
-        return epsilon_0 / (1.5*(t / t_star) ** 1.25) # no_step_no_scale_old_exp # REDO WITH t_star = 300
+        return epsilon_0 / (1.5*(t / t_star) ** 1.25)  # no_step_no_scale_old_exp # REDO WITH t_star = 300
     else:
         return 0
 

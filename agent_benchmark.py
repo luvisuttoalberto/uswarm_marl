@@ -1,10 +1,9 @@
 import numpy as np
 from math import pi
-from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive
-import random
+from auxiliary_functions import compute_rotation_matrix
 
 
-class Agent_benchmark:
+class AgentBenchmark:
     """
     Class that defines a single agent.
     """

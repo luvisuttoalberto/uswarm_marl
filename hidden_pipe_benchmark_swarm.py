@@ -1,7 +1,7 @@
 import numpy as np
-from auxiliary_functions import compute_rotation_matrix, exploration_rate_adaptive, is_scalar_in_visible_interval
+from auxiliary_functions import compute_rotation_matrix, is_scalar_in_visible_interval
 from math import sqrt, degrees, pi, floor
-from agent_benchmark import Agent_benchmark
+from agent_benchmark import AgentBenchmark
 from numpy.linalg import norm as euclidean_norm
 import random
 from time import time
@@ -10,6 +10,9 @@ from time import time
 class HiddenPipeEnvironmentBenchmark:
     """
     Class that defines the whole environment.
+    This class is a variation of the HiddenPipeEnvironment class.
+    It is used to perform a benchmark at the end of the learning. 
+    In this benchmark agents have learned the Q-matrices and will explore the pipe WITHOUT seeing each other.
     """
 
     def __init__(self,
@@ -29,7 +32,6 @@ class HiddenPipeEnvironmentBenchmark:
                  std_dev_position_noise,
                  reset_type,
                  gamma,
-                 prob_no_switch_state,
                  flag_spatially_uncorrelated_case,
                  std_dev_measure_pipe,
                  prob_end_surge,
@@ -136,8 +138,6 @@ class HiddenPipeEnvironmentBenchmark:
 
         self.output_directory = '.'
 
-        self.prob_no_switch_state = prob_no_switch_state
-
         self.std_dev_measure_pipe = std_dev_measure_pipe
 
         self.prob_end_surge = prob_end_surge
@@ -155,18 +155,18 @@ class HiddenPipeEnvironmentBenchmark:
         Adds a new agent to the environment, given its position and velocity; updates related parameters and data
         structures.
         """
-        new_agent = Agent_benchmark(x,
-                                    y,
-                                    v,
-                                    self.v0,
-                                    self.phi,
-                                    self.K_a,
-                                    self.possible_states,
-                                    self.K_s_pipe,
-                                    self.R,
-                                    self.std_dev_measure_pipe,
-                                    self.forgetting_factor,
-                                    Q)
+        new_agent = AgentBenchmark(x,
+                                   y,
+                                   v,
+                                   self.v0,
+                                   self.phi,
+                                   self.K_a,
+                                   self.possible_states,
+                                   self.K_s_pipe,
+                                   self.R,
+                                   self.std_dev_measure_pipe,
+                                   self.forgetting_factor,
+                                   Q)
         new_agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(new_agent.p)
         self.agents_list.append(new_agent)
         self.n_agents += 1
@@ -199,43 +199,12 @@ class HiddenPipeEnvironmentBenchmark:
 
     def is_agent_seeing_the_pipe(self, index):
         agent = self.agents_list[index]
-        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5, self.flag_spatially_uncorrelated_case):
+        if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5):
             return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_start_fov) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_end_fov) <= 0
         else:
             return False
 
-    def obtain_relative_position_state(self, index):
-        # Pipe state computation
-        agent = self.agents_list[index]
-        if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
-            if -0.5 < agent.oriented_distance_from_pipe < 0.5:
-                state_relative_position = 1
-            elif agent.oriented_distance_from_pipe < -0.5:
-                state_relative_position = 4
-            else:
-                state_relative_position = 5
-        elif agent.s[2] in [1, 4, 5]:
-            state_relative_position = 3
-        elif agent.s[2] == 3:
-            if np.random.binomial(1, self.prob_end_surge):
-                if agent.last_oriented_distance_from_pipe > 0:
-                    state_relative_position = 0
-                else:
-                    state_relative_position = 2
-            else:
-                state_relative_position = agent.s[2]
-        else:
-            if np.random.binomial(1, self.prob_no_switch_state):
-                state_relative_position = agent.s[2]
-            else:
-                if agent.s[2] == 0:
-                    state_relative_position = 2
-                else:
-                    state_relative_position = 0
-
-        return state_relative_position
-
-    def obtain_relative_position_state_new(self, index):
+    def obtain_information_state(self, index):
         agent = self.agents_list[index]
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -0.5 < agent.oriented_distance_from_pipe < 0.5:
@@ -317,7 +286,7 @@ class HiddenPipeEnvironmentBenchmark:
 
         # State update
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_information_state(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
@@ -397,7 +366,7 @@ class HiddenPipeEnvironmentBenchmark:
                 self.boolean_array_visited_pipes[i][floor(self.agents_list[i].p[0])] = 1
 
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
+            self.agents_list[i].update_relative_position_state(self.obtain_information_state(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))

@@ -183,10 +183,10 @@ class AgentNoNeigh:
         if self.flag_is_agent_seeing_the_pipe:
             # self.timeout_info_pipe = 0
             # self.flag_agent_knows_info_on_position_of_pipe = True
-            self.measure_angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
+            measure_angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
             if not first_step:
                 self.weight_measure = self.forgetting_factor*self.weight_measure + 1
-            self.angle_pipe = (1-1/self.weight_measure)*self.angle_pipe + self.measure_angle_pipe/self.weight_measure
+            self.angle_pipe = (1-1/self.weight_measure)*self.angle_pipe + measure_angle_pipe/self.weight_measure
             self.vector_pipe = np.dot(compute_rotation_matrix(self.angle_pipe), np.array([1, 0]))
             # self.last_oriented_distance_from_pipe = self.oriented_distance_from_pipe
         # else:

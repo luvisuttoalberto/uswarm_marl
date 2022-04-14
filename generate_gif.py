@@ -1,6 +1,5 @@
 from numpy import load
 from plot_functions import generate_gif_initial, plot_whole_trajectories, generate_gif_final
-from math import pi
 
 n_agents = 1
 
