@@ -164,7 +164,6 @@ class HiddenPipeEnvironmentBenchmark:
                                     self.possible_states,
                                     self.K_s_pipe,
                                     self.R,
-                                    self.gamma,
                                     self.std_dev_measure_pipe,
                                     self.forgetting_factor,
                                     Q)

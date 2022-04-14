@@ -9,17 +9,17 @@ class Agent:
     Class that defines a single agent.
     """
 
-    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr, Q = None):
+    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr, Q = None):
         """
         Constructor of the agent.
         x and y are the positional coordinates of the agent.
         v is the velocity.
         v0 is the value of the constant speed (scalar).
         phi is half of the agent's angle of view.
-        K_a is the number of possible actions.
-        possible_states is a vector containing all the possible "neighbours" states.
-        K_s_pipe is the number of possible "region" states.
-        maximum_reward is the value of the maximum possible reward that can be received.
+        k_a is the number of possible actions.
+        possible_states is a vector containing all the possible neighbours states.
+        k_s_pipe is the number of possible information states.
+        radius is the radius defining the field of view.
         """
         self.p = np.array([x, y])
         self.v = np.array(v)
@@ -28,7 +28,6 @@ class Agent:
         self.K_a = k_a
         self.possible_states = possible_states
         self.R = radius
-        self.gamma = gamma
         self.alpha_0 = alpha_0
         self.t_star_lr = t_star_lr
 

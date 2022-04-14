@@ -9,7 +9,7 @@ class AgentNoNeigh:
     Class that defines a single agent.
     """
 
-    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr):
+    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, std_dev_measure_pipe, forgetting_factor, alpha_0, t_star_lr):
         """
         Constructor of the agent.
         x and y are the positional coordinates of the agent.
@@ -28,7 +28,6 @@ class AgentNoNeigh:
         self.K_a = k_a
         self.possible_states = possible_states
         self.R = radius
-        self.gamma = gamma
         self.alpha_0 = alpha_0
         self.t_star_lr = t_star_lr
 

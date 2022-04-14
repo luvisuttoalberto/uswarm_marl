@@ -189,7 +189,6 @@ class HiddenPipeEnvironmentNoNeigh:
                                  self.possible_states,
                                  self.K_s_pipe,
                                  self.R,
-                                 self.gamma,
                                  self.std_dev_measure_pipe,
                                  self.forgetting_factor,
                                  self.alpha_0,

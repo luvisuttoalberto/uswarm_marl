@@ -9,17 +9,16 @@ class Agent_benchmark:
     Class that defines a single agent.
     """
 
-    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, gamma, std_dev_measure_pipe, forgetting_factor, Q):
+    def __init__(self, x, y, v, v0, phi, k_a, possible_states, k_s_pipe, radius, std_dev_measure_pipe, forgetting_factor, Q):
         """
         Constructor of the agent.
         x and y are the positional coordinates of the agent.
         v is the velocity.
         v0 is the value of the constant speed (scalar).
         phi is half of the agent's angle of view.
-        K_a is the number of possible actions.
-        possible_states is a vector containing all the possible "neighbours" states.
-        K_s_pipe is the number of possible "region" states.
-        maximum_reward is the value of the maximum possible reward that can be received.
+        k_a is the number of possible actions.
+        possible_states is a vector containing all the possible neighbors states.
+        k_s_pipe is the number of possible information states.
         """
         self.p = np.array([x, y])
         self.v = np.array(v)
@@ -28,17 +27,16 @@ class Agent_benchmark:
         self.K_a = k_a
         self.possible_states = possible_states
         self.R = radius
-        self.gamma = gamma
         self.Q = Q
 
-        #       Current angle of orientation of the agent
+        # Current angle of orientation of the agent
         self.Beta = np.arctan2(v[1], v[0])
 
-        #       Modification of Beta in order to have it in [0, 2*pi) instead of [-pi, pi)
+        # Modification of Beta in order to have it in [0, 2*pi) instead of [-pi, pi)
         if self.Beta < 0:
             self.Beta += 2 * pi
 
-        #       Definition of auxiliary values that describe the beginning and end of the field of view of the agent
+        # Definition of auxiliary values that describe the beginning and end of the field of view of the agent
         self.start_angle_fov = self.Beta - self.phi
         if self.start_angle_fov < 0:
             self.start_angle_fov += 2 * pi
