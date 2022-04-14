@@ -292,10 +292,7 @@ class HiddenPipeEnvironment:
             else:
                 state_relative_position = agent.s[2]
         else:
-            if np.random.binomial(1, self.prob_end_lost_state):
-                state_relative_position = 5
-            else:
-                state_relative_position = agent.s[2]
+            state_relative_position = agent.s[2]
 
         return state_relative_position
 
@@ -354,7 +351,7 @@ class HiddenPipeEnvironment:
 
     def simulation_step(self, t, current_episode):
         """
-        Simulates a single timestep t of episode current_episode.
+        Simulates a single time step t of episode current_episode.
         """
         # Action update
         for i in range(self.n_agents):
@@ -435,7 +432,6 @@ class HiddenPipeEnvironment:
         """
         Simulates a whole episode.
         """
-
         # Compute episode length
         if current_episode >= self.t_stop: # If it's one of the benchmark episodes, length is fixed
             self.number_of_steps_per_episode[current_episode] = 1/(1-self.gamma)
@@ -464,7 +460,7 @@ class HiddenPipeEnvironment:
                 self.boolean_array_visited_pipes[i][floor(self.agents_list[i].p[0])] = 1
 
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_information_state(i))
+            self.agents_list[i].update_information_state(self.obtain_information_state(i))
 
         for i in range(self.n_agents):
             self.update_agents_weight(i)
@@ -495,6 +491,7 @@ class HiddenPipeEnvironment:
         tmp_average_fraction_pipe = np.zeros(self.n_agents)
         for i in range(self.n_agents):
             tmp_average_fraction_pipe[i] = np.sum(self.boolean_array_visited_pipes[i])/(5*np.sum(self.boolean_array_visibility[i]))
+
         self.average_fraction_pipe[current_episode] = np.mean(tmp_average_fraction_pipe)
 
         if save_trajectory:
@@ -528,7 +525,7 @@ class HiddenPipeEnvironment:
 
     def complete_simulation(self, interval_save_data, output_directory):
         """
-        Performs the complete simulation, plotting single episode related data every "interval_save_data" steps.
+        Performs the complete simulation, saving single episode related data every "interval_save_data" steps.
         """
 
         self.output_directory = output_directory

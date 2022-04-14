@@ -149,7 +149,7 @@ class Agent:
 
     def update_position(self, delta_t=1):
         """
-        Updates the position of the agent, according to its velocity and the provided timestep.
+        Updates the position of the agent, according to its velocity and the provided time step.
         """
         self.p = self.p + self.v0 * delta_t * self.v
 
@@ -169,13 +169,6 @@ class Agent:
         self.old_s[1] = self.s[1]
         self.s[0] = state[0]
         self.s[1] = state[1]
-
-    def update_state(self, state):
-        """
-        Updates the agent state.
-        """
-        self.old_s = self.s
-        self.s = state
 
     def update_info_on_pipe(self, is_agent_seeing_the_pipe, first_step):
         """

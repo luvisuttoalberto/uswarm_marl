@@ -41,19 +41,16 @@ class AgentBenchmark:
             self.start_angle_fov += 2 * pi
         self.end_angle_fov = (self.Beta + self.phi) % (2 * pi)
 
+        # Definition of auxiliary vectors that defines the beginning and end of the field of view of the agent
         self.vector_start_fov = np.dot(compute_rotation_matrix(self.start_angle_fov), np.array([1, 0])) * self.R
         self.vector_end_fov = np.dot(compute_rotation_matrix(self.end_angle_fov), np.array([1, 0])) * self.R
 
-        #       Boolean auxiliary value stating if angle 0 is in the field of view;
-        #       will be used to determine if neighbour is in the fov or not
+        # Boolean auxiliary value stating if angle 0 is in the field of view;
+        # will be used to determine if neighbour is in the fov or not
         self.flag_0_in_interval = self.start_angle_fov > self.end_angle_fov
 
-        #       Boolean auxiliary value stating if the pipe is in the field of view of the agent
+        # Boolean auxiliary value stating if the pipe is in the field of view of the agent
         self.flag_is_agent_seeing_the_pipe = False
-        # self.flag_agent_knows_info_on_position_of_pipe = False
-
-        # Initialization of the Q matrix (Optimistic approach: initialized at the maximum possible value of the
-        # reward) self.Q = np.ones([len(self.possible_states), K_s_pipe, self.K_a])*maximum_reward
 
         self.Q_visits = np.zeros([len(self.possible_states), len(self.possible_states), k_s_pipe])
 
@@ -61,17 +58,15 @@ class AgentBenchmark:
 
         # Initialization of the agent's state to default values; will actually be updated before starting the
         # simulation
-        self.s = [0.0, 0.0, 1]
+        self.s = [0.0, 0.0, 0]
         self.old_s = [0.0, 0.0, 0]
 
-        #       Store the reward received by the agent. Needed only for plots
+        # Store the reward received by the agent. Needed only for plots
         self.r = 0
 
         # Auxiliary variable that stores the distance from the pipe (with sign). Added to avoid multiple computation
         # of values.
         self.oriented_distance_from_pipe = 0
-
-        self.orientation_of_pipe = 0
 
         self.angle_pipe = 0
 
@@ -139,7 +134,7 @@ class AgentBenchmark:
 
     def update_position(self, delta_t=1):
         """
-        Updates the position of the agent, according to its velocity and the provided timestep.
+        Updates the position of the agent, according to its velocity and the provided time step.
         """
         self.p = self.p + self.v0 * delta_t * self.v
 
@@ -150,7 +145,7 @@ class AgentBenchmark:
         """
         self.p = self.p + self.v0 * delta_t * self.v + np.random.normal(mean, std_dev, size=2) * delta_t
 
-    def update_relative_position_state(self, state):
+    def update_information_state(self, state):
         self.old_s[2] = self.s[2]
         self.s[2] = state
 
@@ -160,14 +155,10 @@ class AgentBenchmark:
         self.s[0] = state[0]
         self.s[1] = state[1]
 
-    def update_state(self, state):
-        """
-        Updates the agent state.
-        """
-        self.old_s = self.s
-        self.s = state
-
     def update_info_on_pipe(self, is_agent_seeing_the_pipe, first_step):
+        """
+        Updates the information the agent has on the pipe
+        """
         self.flag_is_agent_seeing_the_pipe = is_agent_seeing_the_pipe
         if self.flag_is_agent_seeing_the_pipe:
             measure_angle_pipe = 0 + np.random.normal(0, self.std_dev_measure_pipe)
@@ -199,13 +190,13 @@ class AgentBenchmark:
         Given the current state of the agent, computes and returns the correspondent indexes in the possible_states
         vector.
         """
-
-        #       Neighbours state
+        # Neighbours state
         if state[0] == self.possible_states[-1]:  # no neighbours state
             state_index_neighbours = len(self.possible_states) - 1
         else:
             state_index_neighbours = np.where(self.possible_states == state[0])
 
+        # Pipe state
         if state[1] == self.possible_states[-1]:  # no neighbours state
             state_index_pipe = len(self.possible_states) - 1
         else:
@@ -223,6 +214,9 @@ class AgentBenchmark:
         self.state_action_rate_visits[old_state_indexes[0], old_state_indexes[1], old_state_indexes[2], self.a] += 1
 
     def obtain_policy_probabilities(self, state_indexes, exploration_rate):
+        """
+        Returns the current policy probabilities given the current state and the current exploration rate
+        """
         policy = np.ones(self.K_a) / self.K_a * exploration_rate
         best_value = np.max(self.Q[state_indexes[0], state_indexes[1], state_indexes[2]])
         best_actions = (self.Q[state_indexes[0], state_indexes[1], state_indexes[2]] == best_value)

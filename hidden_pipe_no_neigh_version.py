@@ -344,7 +344,7 @@ class HiddenPipeEnvironmentNoNeigh:
 
         # State update
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
+            self.agents_list[i].update_information_state(self.obtain_relative_position_state_new(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
@@ -427,7 +427,7 @@ class HiddenPipeEnvironmentNoNeigh:
                 self.boolean_array_visited_pipes[i][floor(self.agents_list[i].p[0])] = 1
 
         for i in range(self.n_agents):
-            self.agents_list[i].update_relative_position_state(self.obtain_relative_position_state_new(i))
+            self.agents_list[i].update_information_state(self.obtain_relative_position_state_new(i))
 
         for i in range(self.n_agents):
             self.agents_list[i].update_orientations_state(self.obtain_orientations_states(i))
