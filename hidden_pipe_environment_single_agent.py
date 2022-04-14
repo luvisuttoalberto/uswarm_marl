@@ -1,6 +1,6 @@
 import numpy as np
 
-from agent_no_neigh import AgentNoNeigh
+from agent_baseline import AgentBaseline
 from auxiliary_functions import compute_rotation_matrix, learning_rate_adaptive, exploration_rate_adaptive, is_scalar_in_visible_interval
 from math import sqrt, degrees, pi, floor
 from numpy.linalg import norm as euclidean_norm
@@ -169,7 +169,7 @@ class HiddenPipeEnvironmentSingleAgent:
 
         self.forgetting_factor = forgetting_factor
 
-        self.agent = AgentNoNeigh(0, 0, np.array([1, 0]), self.v0, self.phi, self.K_a, self.possible_states, self.K_s_pipe, self.R, self.std_dev_measure_pipe, self.forgetting_factor, self.alpha_0, self.t_star_lr)
+        self.agent = AgentBaseline(0, 0, np.array([1, 0]), self.v0, self.phi, self.K_a, self.possible_states, self.K_s_pipe, self.R, self.std_dev_measure_pipe, self.forgetting_factor, self.alpha_0, self.t_star_lr)
         self.agent.oriented_distance_from_pipe = self.compute_oriented_distance_from_pipe(self.agent.p)
 
     def discretize_state(self, state):

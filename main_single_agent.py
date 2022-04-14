@@ -3,7 +3,7 @@ import numpy as np
 from math import pi
 from warnings import filterwarnings
 
-import hidden_pipe_single_agent
+import hidden_pipe_environment_single_agent
 
 filterwarnings("ignore", category=RuntimeWarning)
 

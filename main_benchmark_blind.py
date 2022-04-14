@@ -1,7 +1,7 @@
 import pathlib
 import numpy as np
 from math import pi
-from hidden_pipe_benchmark_swarm import HiddenPipeEnvironmentBenchmark
+from hidden_pipe_environment_benchmark_blind import HiddenPipeEnvironmentBenchmark
 from warnings import filterwarnings
 
 filterwarnings("ignore", category=RuntimeWarning)

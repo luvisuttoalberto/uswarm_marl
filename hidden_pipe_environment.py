@@ -38,8 +38,7 @@ class HiddenPipeEnvironment:
                  prob_end_surge,
                  forgetting_factor,
                  visibility_pipe,
-                 pipe_recognition_probability,
-                 prob_end_lost_state):
+                 pipe_recognition_probability):
         """
         Constructor of the class.
         """
@@ -157,8 +156,6 @@ class HiddenPipeEnvironment:
 
         # Probability of recognition of the pipe if it's in the agent's fov
         self.pipe_recognition_probability = pipe_recognition_probability
-
-        self.prob_end_lost_state = prob_end_lost_state
 
         # Weight values associated to the level of information an agent has on the pipe
         self.RED_WEIGHT = 0.8

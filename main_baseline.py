@@ -1,7 +1,7 @@
 import pathlib
 import numpy as np
 from math import pi
-import hidden_pipe_no_neigh_version
+import hidden_pipe_environment_baseline
 from warnings import filterwarnings
 
 filterwarnings("ignore", category=RuntimeWarning)
@@ -93,7 +93,7 @@ visibility_pipe = 1.
 
 for j in [1,2,4]:
     print(j)
-    AF = hidden_pipe_no_neigh_version.HiddenPipeEnvironmentNoNeigh(
+    AF = hidden_pipe_no_neigh_version.HiddenPipeEnvironmentBaseline(
         theta_max,
         v0,
         R,
