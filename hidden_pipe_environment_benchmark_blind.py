@@ -41,6 +41,13 @@ class HiddenPipeEnvironmentBenchmark:
         Constructor of the class.
         """
 
+        # Macros to represent the information states
+        self.STATE_SEE = 0
+        self.STATE_CLOSE_RIGHT = 1
+        self.STATE_CLOSE_LEFT = 2
+        self.STATE_JUST_LOST = 3
+        self.STATE_LOST = 4
+
         # The number of agents is initialized to 0; then agents are added to the environment (and to the agents list)
         # one at a time
         self.n_agents = 0
@@ -204,22 +211,22 @@ class HiddenPipeEnvironmentBenchmark:
         agent = self.agents_list[index]
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -0.5 < agent.oriented_distance_from_pipe < 0.5:
-                state_relative_position = 0
+                state_information = self.STATE_SEE
             elif agent.oriented_distance_from_pipe < -0.5:
-                state_relative_position = 1
+                state_information = self.STATE_CLOSE_RIGHT
             else:
-                state_relative_position = 2
-        elif agent.s[2] in [0, 1, 2]:
-            state_relative_position = 3
-        elif agent.s[2] == 3:
+                state_information = self.STATE_CLOSE_LEFT
+        elif agent.s[2] in [self.STATE_SEE, self.STATE_CLOSE_RIGHT, self.STATE_CLOSE_LEFT]:
+            state_information = self.STATE_JUST_LOST
+        elif agent.s[2] == self.STATE_JUST_LOST:
             if np.random.binomial(1, self.prob_end_surge):
-                state_relative_position = 4
+                state_information = self.STATE_LOST
             else:
-                state_relative_position = agent.s[2]
+                state_information = agent.s[2]
         else:
-            state_relative_position = agent.s[2]
+            state_information = agent.s[2]
 
-        return state_relative_position
+        return state_information
 
     def obtain_orientations_states(self, index):
         """

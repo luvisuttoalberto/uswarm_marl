@@ -42,6 +42,13 @@ class HiddenPipeEnvironmentSingleAgent:
         Constructor of the class.
         """
 
+        # Macros to represent the information states
+        self.STATE_SEE = 0
+        self.STATE_CLOSE_RIGHT = 1
+        self.STATE_CLOSE_LEFT = 2
+        self.STATE_JUST_LOST = 3
+        self.STATE_LOST = 4
+
         self.n_agents = 1
         self.gamma = gamma
 
@@ -172,28 +179,28 @@ class HiddenPipeEnvironmentSingleAgent:
         else:
             return False
 
-    def obtain_information_state(self):
+    def obtain_information_state(self, index):
         """
         Obtains the information state of agent "index"
         """
         if self.agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
             if -0.5 < self.agent.oriented_distance_from_pipe < 0.5:
-                state_relative_position = 0
+                state_information = self.STATE_SEE
             elif self.agent.oriented_distance_from_pipe < -0.5:
-                state_relative_position = 1
+                state_information = self.STATE_CLOSE_RIGHT
             else:
-                state_relative_position = 2
-        elif self.agent.s[1] in [0, 1, 2]:
-            state_relative_position = 3
-        elif self.agent.s[1] == 3:
+                state_information = self.STATE_CLOSE_LEFT
+        elif self.agent.s[1] in [self.STATE_SEE, self.STATE_CLOSE_RIGHT, self.STATE_CLOSE_LEFT]:
+            state_information = self.STATE_JUST_LOST
+        elif self.agent.s[1] == self.STATE_JUST_LOST:
             if np.random.binomial(1, self.prob_end_surge):
-                state_relative_position = 4
+                state_information = self.STATE_LOST
             else:
-                state_relative_position = self.agent.s[1]
+                state_information = self.agent.s[1]
         else:
-            state_relative_position = self.agent.s[1]
+            state_information = self.agent.s[1]
 
-        return state_relative_position
+        return state_information
 
     def obtain_orientations_states(self):
         """
