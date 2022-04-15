@@ -6,9 +6,6 @@ from warnings import filterwarnings
 
 filterwarnings("ignore", category=RuntimeWarning)
 
-# Number of agents
-# n_agents = 16
-
 # Initial exploration rate
 epsilon_0 = 0.3
 
@@ -25,7 +22,7 @@ R = 4
 k_s = 33
 
 # Number of possible "pipe" states
-k_s_pipe = 6
+k_s_pipe = 5
 
 # Number of possible turning angles [= number of possible actions]
 k_a = 7
@@ -34,7 +31,7 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.9999
+gamma = 0.9995
 
 # Number of episodes
 n_episodes = 1600
@@ -87,6 +84,8 @@ forgetting_factor = 0.99
 
 visibility_pipe = 0.5
 
+pipe_recognition_probability = 0.95
+
 # reward_follow_smart_agent = 0.8
 
 for j in [1,2,4]:
@@ -116,7 +115,8 @@ for j in [1,2,4]:
         std_dev_measure_pipe,
         prob_end_surge,
         forgetting_factor,
-        visibility_pipe
+        visibility_pipe,
+        pipe_recognition_probability
     )
 
     for i in range(j):

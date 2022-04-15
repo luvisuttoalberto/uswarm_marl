@@ -23,7 +23,7 @@ R = 4
 k_s = 32
 
 # Number of possible "pipe" states
-k_s_pipe = 6
+k_s_pipe = 5
 
 # Number of possible turning angles [= number of possible actions]
 k_a = 7
@@ -32,7 +32,7 @@ k_a = 7
 phi = 0.5
 
 # Discount factor (survival probability)
-gamma = 0.9999
+gamma = 0.9995
 
 # Number of episodes
 n_episodes = 1600
@@ -56,8 +56,6 @@ offset_pipe = 0
 
 # Mean and standard deviation for the gaussian noise on the position
 mean_position_noise = 0
-# std_dev_position_noise = 0.007
-# std_dev_position_noise = v0/8
 std_dev_position_noise = 0.01
 
 # Mean and standard deviation for the gaussian noise on the velocity angle
@@ -65,19 +63,17 @@ mean_velocity_noise = 0
 # Computed to assure that the noise on the velocity won't cause the loss of a neighbour in less than 5 timesteps
 std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
 
-# std_dev_velocity_noise = 0.01
-
-flag_spatially_uncorrelated_case = False
-
-prob_no_switch_state = 0.9
-
 std_dev_measure_pipe = pi/16.
 
 prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
-AF = hidden_pipe_single_agent.HiddenPipeEnvironmentSingleAgent(
+visibility_pipe = 0.6
+
+pipe_recognition_probability = 0.95
+
+AF = hidden_pipe_environment_single_agent.HiddenPipeEnvironmentSingleAgent(
     theta_max,
     v0,
     R,
@@ -98,16 +94,16 @@ AF = hidden_pipe_single_agent.HiddenPipeEnvironmentSingleAgent(
     std_dev_velocity_noise,
     std_dev_position_noise,
     gamma,
-    prob_no_switch_state,
-    flag_spatially_uncorrelated_case,
     std_dev_measure_pipe,
     prob_end_surge,
-    forgetting_factor
+    forgetting_factor,
+    visibility_pipe,
+    pipe_recognition_probability
 )
 
 AF.reset_position_and_velocity()
 
-output_directory = './data_trace_6_states/longer_no_step_no_scale_old_exp_6_states_%.2f_prob_%.2f_noise_%.3f_forgetting_factor_%.2f_4' % (prob_end_surge, prob_no_switch_state, std_dev_measure_pipe, forgetting_factor)
+output_directory = './data_trace_6_states/longer_no_step_no_scale_old_exp_6_states_%.2f_noise_%.3f_forgetting_factor_%.2f_4' % (prob_end_surge, std_dev_measure_pipe, forgetting_factor)
 pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
 AF.complete_simulation(50, output_directory)

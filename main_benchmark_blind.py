@@ -6,9 +6,6 @@ from warnings import filterwarnings
 
 filterwarnings("ignore", category=RuntimeWarning)
 
-# Number of agents
-# n_agents = 16
-
 # Maximum turning angle of the agent per timestep
 theta_max = 3 * pi / 16
 
@@ -55,13 +52,7 @@ reset_type = "area"
 
 pipe_recognition_probability = 0.95
 
-flag_spatially_uncorrelated_case = False
-
-prob_no_switch_state = 0.9
-
 std_dev_measure_pipe = pi/16.
-
-print(std_dev_measure_pipe)
 
 prob_end_surge = 1/15.
 
@@ -93,8 +84,6 @@ AF = HiddenPipeEnvironmentBenchmark(
     std_dev_position_noise,
     reset_type,
     gamma,
-    prob_no_switch_state,
-    flag_spatially_uncorrelated_case,
     std_dev_measure_pipe,
     prob_end_surge,
     forgetting_factor,

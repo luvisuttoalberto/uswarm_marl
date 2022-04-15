@@ -6,9 +6,6 @@ from warnings import filterwarnings
 
 filterwarnings("ignore", category=RuntimeWarning)
 
-# Number of agents
-# n_agents = 16
-
 # Initial exploration rate
 epsilon_0 = 0
 
@@ -59,17 +56,11 @@ offset_pipe = 0
 # Mean and standard deviation for the gaussian noise on the position
 mean_position_noise = 0
 std_dev_position_noise = 0.01
-# std_dev_position_noise = v0/8
-# std_dev_position_noise = 0
 
 # Mean and standard deviation for the gaussian noise on the velocity angle
 mean_velocity_noise = 0
 # Computed to assure that the noise on the velocity won't cause the loss of a neighbour in less than 10 timesteps
 std_dev_velocity_noise = np.sqrt((phi ** 2) / 10) / 2
-# std_dev_velocity_noise = 0
-
-# Distance from the pipe that defines the region in which the agent receives a reward
-# distance_from_pipe = R*np.sin(phi/2)
 
 # Flag that defines how the positions and velocities of agents are reset at the beginning of an episode
 reset_type = "area"
@@ -79,19 +70,11 @@ pipe_recognition_probability = 0.95
 
 std_dev_measure_pipe = pi/16.
 
-print(std_dev_measure_pipe)
-
 prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
 visibility_pipe = 0.6
-
-# reward_follow_smart_agent = 0.8
-
-forgetting_factor_neigh = 0.9
-
-prob_end_lost_state = 0
 
 n_agents = 4
 
@@ -122,8 +105,7 @@ AF = hidden_pipe_environment.HiddenPipeEnvironment(
     prob_end_surge,
     forgetting_factor,
     visibility_pipe,
-    pipe_recognition_probability,
-    prob_end_lost_state
+    pipe_recognition_probability
 )
 
 reset_type = "area"
