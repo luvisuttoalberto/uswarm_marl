@@ -123,6 +123,7 @@ class HiddenPipeEnvironment:
         self.orientation = np.zeros((self.n_agents,))
         self.vector_fov_starts = np.zeros((self.n_agents,))
         self.vector_fov_ends = np.zeros((self.n_agents,))
+        self.vector_fov_center = np.zeros((self.n_agents,))
         self.visibility_of_pipe = np.zeros((self.n_agents,), dtype=bool)
         self.colors_agents = np.zeros((self.n_agents,))
         self.boolean_array_visibility = np.empty((self.n_agents, int(1/(1-self.gamma))))
@@ -191,6 +192,7 @@ class HiddenPipeEnvironment:
         self.orientation = np.zeros((self.n_agents,))
         self.vector_fov_ends = np.zeros((self.n_agents,))
         self.vector_fov_starts = np.zeros((self.n_agents,))
+        self.vector_fov_center = np.zeros((self.n_agents,))
         self.visibility_of_pipe = np.zeros((self.n_agents,), dtype=bool)
         self.colors_agents = np.zeros((self.n_agents,))
         self.boolean_array_visibility = np.empty((self.n_agents, int(1 / (1 - self.gamma))))
@@ -265,7 +267,7 @@ class HiddenPipeEnvironment:
         """
         agent = self.agents_list[index]
         if -self.R < agent.oriented_distance_from_pipe < self.R and np.random.binomial(size=1, p=self.pipe_recognition_probability, n=1) and is_scalar_in_visible_interval(agent.p[0], self.boolean_array_visibility[0], 5):
-            return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_start_fov) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_end_fov) <= 0
+            return agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.v*self.R) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_start_fov) <= 0 or agent.oriented_distance_from_pipe * self.compute_oriented_distance_from_pipe(agent.p + agent.vector_end_fov) <= 0
         else:
             return False
 
@@ -275,9 +277,9 @@ class HiddenPipeEnvironment:
         """
         agent = self.agents_list[index]
         if agent.flag_is_agent_seeing_the_pipe:  # agent is seeing the pipe
-            if -0.5 < agent.oriented_distance_from_pipe < 0.5:
+            if -1.5 < agent.oriented_distance_from_pipe < 1.5:
                 state_information = self.STATE_SEE
-            elif agent.oriented_distance_from_pipe < -0.5:
+            elif agent.oriented_distance_from_pipe < -1.5:
                 state_information = self.STATE_CLOSE_RIGHT
             else:
                 state_information = self.STATE_CLOSE_LEFT
@@ -343,6 +345,7 @@ class HiddenPipeEnvironment:
             self.orientation[i][t] = degrees(self.agents_list[i].Beta) - 90
             self.vector_fov_starts[i][t] = self.agents_list[i].vector_start_fov
             self.vector_fov_ends[i][t] = self.agents_list[i].vector_end_fov
+            self.vector_fov_center[i][t] = self.agents_list[i].v*self.R
             self.visibility_of_pipe[i][t] = self.agents_list[i].flag_is_agent_seeing_the_pipe
             self.colors_agents[i][t] = self.agents_list[i].agent_weight
 
@@ -472,6 +475,7 @@ class HiddenPipeEnvironment:
             self.orientation = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             self.vector_fov_starts = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
             self.vector_fov_ends = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
+            self.vector_fov_center = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode], 2))
             self.visibility_of_pipe = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]), dtype=bool)
             self.colors_agents = np.zeros((self.n_agents, self.number_of_steps_per_episode[current_episode]))
             
@@ -507,6 +511,7 @@ class HiddenPipeEnvironment:
                      orientation=self.orientation,
                      vector_fov_starts=self.vector_fov_starts,
                      vector_fov_ends=self.vector_fov_ends,
+                     vector_fov_center=self.vector_fov_center,
                      visibility_of_pipe=self.visibility_of_pipe,
                      colors_agent=self.colors_agents,
                      boolean_array_visibility=self.boolean_array_visibility[0],
