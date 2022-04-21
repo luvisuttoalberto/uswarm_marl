@@ -30,7 +30,6 @@ def plot_whole_trajectories(n_agents, x_trajectory, y_trajectory, directory, epi
 
     ax1.legend(title='Agent: ', fontsize=14, loc='center left', bbox_to_anchor=(1, 0.5))
 
-    # plt.show()
     if flag_save_in_directory:
         plt.savefig("%s/whole_trajectories_%d.png" % (directory, episode), bbox_inches='tight')
     else:
@@ -40,7 +39,7 @@ def plot_whole_trajectories(n_agents, x_trajectory, y_trajectory, directory, epi
 
 def plot_fraction_visited_pipes(fraction_of_seen_sections_of_pipe):
     """
-        Plots the maximum distance reached towards the objective.
+    Plots the fraction of seen visible sections of the pipe.
     """
 
     moving_average_frac = moving_average(fraction_of_seen_sections_of_pipe, 30)
@@ -60,7 +59,7 @@ def plot_fraction_visited_pipes(fraction_of_seen_sections_of_pipe):
 
 def plot_average_fraction_visited_pipes(average_fraction_pipe):
     """
-        Plots the maximum distance reached towards the objective.
+    Plots the average fraction of seen visible sections of the pipe.
     """
 
     moving_average_frac = moving_average(average_fraction_pipe, 30)
@@ -79,6 +78,7 @@ def plot_average_fraction_visited_pipes(average_fraction_pipe):
     plt.show()
 
 def plot_Q_matrix_no_neigh_version(state_reward_index, n_agents, Q, k_s):
+    
     titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     action_ticks = np.arange(7)
@@ -118,9 +118,10 @@ def plot_Q_matrix_no_neigh_version(state_reward_index, n_agents, Q, k_s):
 
 def plot_Q_matrix_pipe(state_neighbours_index, state_reward_index, n_agents, Q, k_s):
     """
-        Plots the Q matrices of each agent, given a "pipe" state index.
-        In this way we can better visualize the values of the state-action matrix in and out of the reward region.
-        """
+    Plots the Q matrices of each agent, given a "pipe" state index.
+    In this way we can better visualize the values of the state-action matrix in and out of the reward region.
+    """
+    
     titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
     fig, axes = plt.subplots(1, n_agents, sharey=True, figsize=(n_agents * 4, 10))
     action_ticks = np.arange(7)
@@ -166,9 +167,10 @@ def plot_Q_matrix_pipe(state_neighbours_index, state_reward_index, n_agents, Q, 
 
 def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
     """
-        Plots the Q matrices of each agent, given a "pipe" state index.
-        In this way we can better visualize the values of the state-action matrix in and out of the reward region.
-        """
+    Plots the Q matrices of each agent, given a "pipe" state index.
+    In this way we can better visualize the values of the state-action matrix in and out of the reward region.
+    """
+    
     action_ticks = np.arange(7)
     state_ticks = np.arange(k_s)
     titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
@@ -212,20 +214,17 @@ def plot_Q_matrix_neigh(state_pipe_index, state_reward_index, n_agents, Q, k_s):
 def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
     X = np.arange(k_s-1)
     Y = np.arange(k_s)
-    titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
+    # titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
 
     tick_labels = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ",]
     tick_labels_neigh = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ", "no-neigh"]
     for j in range(k_s_pipe):
-    # for j in [3]:
         fig = plt.figure(figsize=(25, 25))
         axes = fig.add_subplot(1, 1, 1)
 
         # axes.set_title("Agent %d, Relative position wrt pipe: %s" % (agent_index, titles[j]), fontsize=20)
         axes.set_xlabel("Pipe state", fontsize = 30)
         axes.set_ylabel("Neighbors state", fontsize = 30)
-        # axes.set_xlabel("Neighbors state", fontsize = 20)
-        # axes.set_ylabel("Pipe state", fontsize = 20)
         axes.set_xticks(X)
         axes.set_yticks(Y)
         axes.set_xticklabels(tick_labels)
@@ -241,9 +240,7 @@ def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
             for k in range(k_s):
                 # if Q_visits[k, i, j] != 0:
                 axes.quiver(X[i], Y[k], U[k, i], V[k, i], color='%f' % (1 - Q_visits[k, i, j]), pivot='middle')
-                # axes.quiver(X[i], Y[k], U[i, k], V[i, k], color='%f' % (1 - Q_visits[i, k, j]), pivot='middle')
 
-        # plt.grid()
         plt.show()
 
 def plot_policy_no_neigh(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
@@ -385,6 +382,7 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
     boolean_array_visibility = data["boolean_array_visibility"]
     vector_fov_starts = data["vector_fov_starts"]
     vector_fov_ends = data["vector_fov_ends"]
+    vector_fov_center = data["vector_fov_center"]
     orientation = data["orientation"]
     visibility_of_pipe = data["visibility_of_pipe"]
     colors_agent = data["colors_agent"]
@@ -410,8 +408,7 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
                'deepskyblue', 'dodgerblue', 'olive', 'saddlebrown', 'indigo', 'mediumblue', 'pink', 'deeppink']
     fig = plt.figure(figsize=(30, 30))
     camera = Camera(fig)
-    # end_point_initial = min(500, T)
-    end_point_initial = min(100, T)
+    end_point_initial = min(500, T)
     xlim_r = np.max(x_traj[:, 0:end_point_initial])
 
     plt.xlim([np.min(x_traj[:, 0:end_point_initial]), xlim_r])
@@ -439,9 +436,10 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
                 color = 'r'
             plt.arrow(x_traj[j][i], y_traj[j][i], *vector_fov_starts[j][i], color=color, head_width=0, head_length=0)
             plt.arrow(x_traj[j][i], y_traj[j][i], *vector_fov_ends[j][i], color=color, head_width=0, head_length=0)
-            plt.plot([x_traj[j][i] + vector_fov_starts[j][i][0], x_traj[j][i] + vector_fov_ends[j][i][0]],
-                     [y_traj[j][i] + vector_fov_starts[j][i][1], y_traj[j][i] + vector_fov_ends[j][i][1]], color=color)
-
+            plt.plot([x_traj[j][i] + vector_fov_starts[j][i][0], x_traj[j][i] + vector_fov_center[j][i][0]],
+                     [y_traj[j][i] + vector_fov_starts[j][i][1], y_traj[j][i] + vector_fov_center[j][i][1]], color=color)
+            plt.plot([x_traj[j][i] + vector_fov_center[j][i][0], x_traj[j][i] + vector_fov_ends[j][i][0]],
+                     [y_traj[j][i] + vector_fov_center[j][i][1], y_traj[j][i] + vector_fov_ends[j][i][1]], color=color)
         camera.snap()
     animation = camera.animate(blit=True)
     animation.save("%s/%s_initial.gif" % (directory, title), writer="pillow")
