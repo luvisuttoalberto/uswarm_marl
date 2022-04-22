@@ -216,8 +216,12 @@ def plot_policy(k_s, k_s_pipe, arrows_action, Q, Q_visits, agent_index):
     Y = np.arange(k_s)
     # titles = ['Sees the pipe', "Close right", "Close left", 'Just lost', "Lost", "Long Lost"]
 
-    tick_labels = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ",]
-    tick_labels_neigh = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ", "no-neigh"]
+    # tick_labels = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ",]
+    # tick_labels_neigh = ["$-\pi$", " ", " "," "," "," "," "," ","$-\\frac{\pi}{2}$"," "," "," "," "," "," "," ","0"," "," "," "," "," "," "," ","$\\frac{\pi}{2}$"," "," "," "," "," "," ","$\pi-\\frac{\pi}{16}$ ", "no-neigh"]
+    tick_labels = ["$-\pi$", " "," "," ","$-\\frac{\pi}{2}$"," "," "," ","0"," "," "," ","$\\frac{\pi}{2}$"," "," ","$\pi-\\frac{\pi}{16}$ ",]
+    tick_labels_neigh = ["$-\pi$", " "," "," ","$-\\frac{\pi}{2}$"," "," "," ","0"," "," "," ","$\\frac{\pi}{2}$"," "," ","$\pi-\\frac{\pi}{16}$ ", "no-neigh"]
+
+
     for j in range(k_s_pipe):
         fig = plt.figure(figsize=(25, 25))
         axes = fig.add_subplot(1, 1, 1)
@@ -416,14 +420,24 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
     plt.gca().set_aspect('equal', adjustable='box')
 
     for i in range(0, end_point_initial):
-        for k in [x for x in range(0, len(boolean_array_visibility)) if x * 5 < xlim_r]:
+        plt.plot([0, 8.5], [0, 0], 'k')
+        for k in [x for x in range(1, len(boolean_array_visibility)) if x * 5 < xlim_r]:
             if boolean_array_visibility[k]:
-                if not boolean_array_visibility[k-1] and k > 0:
-                    plt.plot([k * 5 + 3.5, (k + 1) * 5 + 3.5], [0, 0], 'k')
-                # elif k < len(boolean_array_visibility) and not boolean_array_visibility[k+1]:
-                #     plt.plot([k * 5, (k + 1) * 5], [0, 0], 'k')
+                if not boolean_array_visibility[k-1] or not boolean_array_visibility[k+1]:
+                    if boolean_array_visibility[k+1]:
+                        plt.plot([k * 5 + 3.5, (k + 1) * 5], [0, 0], 'k')
+                    elif boolean_array_visibility[k-1]:
+                        plt.plot([k * 5, (k + 1) * 5], [0, 0], 'k')
+                    else:
+                        plt.plot([k * 5 + 3.5, (k + 1) * 5], [0, 0], 'k')
                 else:
-                    plt.plot([k * 5, (k + 1) * 5 + 3.5], [0, 0], 'k')
+                    plt.plot([k * 5, (k + 1) * 5], [0, 0], 'k')
+                # if not boolean_array_visibility[k-1]:
+                #     plt.plot([k * 5 + 3.5, (k + 1) * 5 + 3.5], [0, 0], 'k')
+                # elif k < len(boolean_array_visibility) and not boolean_array_visibility[k+1]:
+                #     plt.plot([k * 5 + 3.5, (k + 1) * 5], [0, 0], 'k')
+                # else:
+                #     plt.plot([k * 5, (k + 1) * 5 + 3.5], [0, 0], 'k')
         # plt.plot([np.min(x_traj[:, 0:end_point_initial]), xlim_r], [0, 0], 'k')
         for j in range(n_agents):
             plt.plot(x_traj[j][max(0, i - 50):i + 1], y_traj[j][max(0, i - 50):i + 1], colours[j],
