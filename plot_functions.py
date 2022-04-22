@@ -420,7 +420,7 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
     plt.gca().set_aspect('equal', adjustable='box')
 
     for i in range(0, end_point_initial):
-        plt.plot([0, 8.5], [0, 0], 'k')
+        plt.plot([0, 5], [0, 0], 'k')
         for k in [x for x in range(1, len(boolean_array_visibility)) if x * 5 < xlim_r]:
             if boolean_array_visibility[k]:
                 if not boolean_array_visibility[k-1] or not boolean_array_visibility[k+1]:
@@ -442,7 +442,6 @@ def generate_gif_initial(title, data, directory, flag_single_agent):
         for j in range(n_agents):
             plt.plot(x_traj[j][max(0, i - 50):i + 1], y_traj[j][max(0, i - 50):i + 1], colours[j],
                      label="Fish n: %d" % (j + 1))
-            # plt.plot(x_traj[j][i], y_traj[j][i], colours[j], marker=(3, 0, orientation[j][i]), markersize=15)
             plt.plot(x_traj[j][i], y_traj[j][i], color_agent[j][i], marker=(3, 0, orientation[j][i]), markersize=15)
             if visibility_of_pipe[j][i]:
                 color = 'k'

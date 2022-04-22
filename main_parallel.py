@@ -19,7 +19,7 @@ v0 = 0.3
 R = 4
 
 # Number of possible "neighbours" states (32 + the "no neighbours" state)
-k_s = 33
+k_s = 17
 
 # Number of possible "pipe" states
 k_s_pipe = 5
@@ -28,23 +28,24 @@ k_s_pipe = 5
 k_a = 7
 
 # Half of the agent's angle of view. (Total angle will be 2*phi)
-phi = 0.5
+# phi = 0.5
+phi = 1
 
 # Discount factor (survival probability)
 gamma = 0.9995
 
 # Number of episodes
-n_episodes = 3200*5
+n_episodes = 3200*10
 
 # T_star epsilon (Time step in the learning at which the exploration rate starts to decrease)
 # Can be different from t_star_lr
-t_star_epsilon = 600*5
+t_star_epsilon = 600*10
 
 # T_star learning rate (Time step in the learning at which the learning rate starts to decrease).
 # Can be different from t_star_epsilon
 t_star_lr = 24000
 
-t_stop = 3200*5-100
+t_stop = 3200*10-100
 
 # Initial learning rate
 alpha_0 = 0.005
@@ -74,12 +75,12 @@ prob_end_surge = 1/15.
 
 forgetting_factor = 0.99
 
-visibility_pipe = 0.75
+visibility_pipe = 0.6
 
 forgetting_factor_neigh = 0.9
 
-for k in [3]:
-    for j in [2,4]:
+for k in [5]:
+    for j in [1,2,4]:
         print(j)
         AF = hidden_pipe_environment.HiddenPipeEnvironment(
             theta_max,
@@ -117,7 +118,7 @@ for k in [3]:
         else:
             AF.reset_position_and_velocities_in_area()
 
-        output_directory = './data_multiple_runs/visibility_%.2f_gamma_%.4f_eps_%.1f_reset_%s_t_star_%d/%d_agents/%d' % (visibility_pipe, gamma, epsilon_0, reset_type, t_star_lr, j, k)
+        output_directory = './data_new_angle_less_states_wider_more_actions_new_info_fixed/visibility_%.2f_gamma_%.4f/%d_agents/%d' % (visibility_pipe, gamma, j, k)
         print(output_directory)
         pathlib.Path(output_directory).mkdir(parents=True, exist_ok=True)
 
